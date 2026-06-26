@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nhận Xét Buổi Học</title>
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    --pri: #4f7cff; --pri2: #7b5cff; --green:#27ae60; --orange:#f39c12; --pink:#eb3b6e; --purple:#8e44ad;
+    --ink:#1c2433; --muted:#7a8194; --line:#e9edf3; --bg:#eef1f7;
+  }
+  body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: var(--bg); color: var(--ink); }
+  .topbar {
+    background: linear-gradient(120deg, var(--pri), var(--pri2));
+    color: #fff; padding: 18px 22px; display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 2px 12px rgba(79,124,255,.25);
+  }
+  .topbar .logo { font-size: 26px; }
+  .topbar h1 { margin: 0; font-size: 19px; font-weight: 700; }
+  .topbar p { margin: 2px 0 0; font-size: 12.5px; opacity: .9; }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 18px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 920px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: #fff; border-radius: 14px; padding: 18px; box-shadow: 0 2px 10px rgba(20,30,60,.06); margin-bottom: 18px; }
+  .card h2 { margin: 0 0 14px; font-size: 15px; color: var(--pri); display: flex; align-items: center; gap: 8px; }
+  .card h2 .num { background: linear-gradient(120deg,var(--pri),var(--pri2)); color:#fff; width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:12px; }
+  label { display: block; font-size: 12.5px; font-weight: 600; margin: 12px 0 5px; color:#3a4254; }
+  input[type=text], textarea, select {
+    width: 100%; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 9px;
+    font-size: 14px; font-family: inherit; background: #fff; transition: border .15s, box-shadow .15s;
+  }
+  input[type=text]:focus, textarea:focus, select:focus { outline: none; border-color: var(--pri); box-shadow: 0 0 0 3px rgba(79,124,255,.15); }
+  textarea { resize: vertical; line-height: 1.55; }
+  .hint { font-size: 11.5px; color: var(--muted); font-weight: 400; }
+  .btn { background: linear-gradient(120deg,var(--pri),var(--pri2)); color: #fff; border: none; padding: 11px 18px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(79,124,255,.3); transition: transform .1s, box-shadow .15s; }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(79,124,255,.4); }
+  .btn.sec { background: #eef1f7; color: #3a4254; box-shadow: none; }
+  .btn.sec:hover { background: #e3e8f1; }
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+
+  /* ===== thẻ học sinh ===== */
+  #roster { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .stu { background:#fafbfe; border:1.5px solid var(--line); border-radius: 12px; padding: 12px 14px; transition: border .15s, box-shadow .15s; }
+  .stu:hover { border-color: #d4ddf0; box-shadow: 0 2px 8px rgba(20,30,60,.05); }
+  .stu .row1 { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .ava { width: 40px; height: 40px; border-radius: 50%; flex-shrink:0; display: flex; align-items: center; justify-content: center; color:#fff; font-weight: 700; font-size: 15px; box-shadow: inset 0 0 0 2px rgba(255,255,255,.4); }
+  .ava.tot { background: var(--green); } .ava.kha { background: var(--orange); } .ava.can { background: var(--pink); }
+  .nm { flex: 1; min-width: 110px; font-size: 14.5px; font-weight: 700; }
+  .seg { display: inline-flex; background:#fff; border: 1.5px solid var(--line); border-radius: 9px; overflow: hidden; }
+  .seg button { background: transparent; color: var(--muted); border: none; padding: 7px 13px; font-size: 12.5px; font-weight: 600; cursor: pointer; border-right: 1px solid var(--line); transition: background .12s; }
+  .seg button:last-child { border-right: none; }
+  .seg button:hover { background:#f2f5fb; }
+  .seg button.a-tot { background: var(--green); color: #fff; }
+  .seg button.a-kha { background: var(--orange); color: #fff; }
+  .seg button.a-can { background: var(--pink); color: #fff; }
+  .mode { border: 1.5px solid var(--line); background: #fff; color: #5a6273; border-radius: 9px; padding: 7px 13px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: .12s; }
+  .mode:hover { background:#f2f5fb; }
+  .mode.on { background: var(--purple); color: #fff; border-color: var(--purple); }
+  .empty { color: var(--muted); font-size: 13px; padding: 18px; text-align:center; background:#fafbfe; border:1.5px dashed var(--line); border-radius:12px; }
+
+  #output { white-space: pre-wrap; font-size: 14px; line-height: 1.65; background: #fafbfe; border: 1.5px solid var(--line); border-radius: 11px; padding: 16px; min-height: 300px; cursor: text; }
+  .copied { color: var(--green); font-size: 13px; font-weight: 700; margin-left: 8px; }
+  .count { font-size: 12px; color: var(--muted); font-weight: 500; margin-left: auto; }
+  .legend-mini { font-size:11.5px; color:var(--muted); margin-top:8px; display:flex; gap:14px; flex-wrap:wrap; }
+  .legend-mini span { display:inline-flex; align-items:center; gap:5px; }
+  .dot { width:10px; height:10px; border-radius:50%; display:inline-block; }
+
+  /* ===== popup chọn kiến thức ===== */
+  #topics { cursor: pointer; background: #fff; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(20,30,60,.45); display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: #fff; border-radius: 14px; padding: 20px; width: min(460px, 94vw); max-height: 84vh; overflow: auto; box-shadow: 0 10px 40px rgba(0,0,0,.25); }
+  .modal h3 { margin: 0 0 4px; font-size: 16px; color: var(--ink); }
+  .modal .sub { font-size: 12.5px; color: var(--muted); margin-bottom: 14px; }
+  .topic-item { display: flex; align-items: center; gap: 10px; padding: 9px 11px; border: 1.5px solid var(--line); border-radius: 9px; margin-bottom: 7px; cursor: pointer; font-size: 14px; user-select: none; }
+  .topic-item:hover { background: #f2f5fb; border-color: #d4ddf0; }
+  .topic-item input { width: 17px; height: 17px; accent-color: var(--pri); cursor: pointer; }
+  .topic-item.on { background: #eef4ff; border-color: var(--pri); }
+  .modal-add { display: flex; gap: 8px; margin: 12px 0; }
+  .modal-add input { flex: 1; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 10px; }
+  .btn.xs { padding: 8px 12px; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap" style="padding-top:18px;">
+  <div class="grid">
+    <!-- TRÁI -->
+    <div>
+      <div class="card">
+        <h2><span class="num">1</span> Buổi học</h2>
+        <label>Môn học</label>
+        <select id="subject" onchange="onSubjectChange()">
+          <option value="scratch">Scratch</option>
+          <option value="gamemaker" selected>GameMaker</option>
+          <option value="python">Python – Qt Designer</option>
+          <option value="web">Web – HTML/CSS/JS</option>
+          <option value="algo">Computer Science</option>
+        </select>
+
+        <label>Kiến thức buổi này <span class="hint">bấm để tích chọn theo môn</span></label>
+        <input type="text" id="topics" readonly onclick="openTopicsModal()" placeholder="Bấm để chọn kiến thức..." value="">
+
+        <label>Xưng hô</label>
+        <select id="title" onchange="generate()">
+          <option value="Thầy">Thầy</option>
+          <option value="Cô">Cô</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <h2><span class="num">2</span> Danh sách học sinh <span id="count" class="count"></span></h2>
+        <label>Dán danh sách tên <span class="hint"> — Thầy cô vào LMS mục <span style="color:var(--pri); font-weight: 700">Điểm Danh</span> để copy nhé (Mỗi bạn 1 dòng)</span></label>
+        <textarea id="names" rows="4" oninput="syncRoster()" placeholder="N. P. N. Lâm&#10;H. A. Đức&#10;Đ. C. Nam&#10;..."></textarea>
+        <div class="legend-mini">
+          <span><i class="dot" style="background:var(--green)"></i> Tốt</span>
+          <span><i class="dot" style="background:var(--orange)"></i> Khá</span>
+          <span><i class="dot" style="background:var(--pink)"></i> Trung bình</span>
+        </div>
+        <div id="roster"></div>
+      </div>
+    </div>
+
+    <!-- PHẢI -->
+    <div>
+      <div class="card">
+        <h2><span class="num">✓</span> Kết quả <span id="copied" class="copied"></span></h2>
+        <div id="output" onclick="selectOutput()"></div>
+        <div class="toolbar">
+          <button class="btn" onclick="copyOut()">📋 Copy gửi Zalo</button>
+          <button class="btn sec" onclick="newVariation()">🔄 Đổi cách diễn đạt</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP CHỌN KIẾN THỨC -->
+<div class="modal-overlay" id="topicsModal" onclick="if(event.target===this)closeTopicsModal()">
+  <div class="modal">
+    <h3>Chọn kiến thức buổi học</h3>
+    <div class="sub" id="modalSubject"></div>
+    <div id="topicsChecklist"></div>
+    <div class="modal-add">
+      <input type="text" id="customTopic" placeholder="Thêm kiến thức khác..." onkeydown="if(event.key==='Enter')addCustomTopic()">
+      <button class="btn sec xs" onclick="addCustomTopic()">+ Thêm</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn sec xs" onclick="toggleAllTopics(true)">Chọn tất cả</button>
+      <button class="btn sec xs" onclick="toggleAllTopics(false)">Bỏ chọn</button>
+      <button class="btn xs" onclick="applyTopics()">✓ Xong</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ====== MÔN HỌC ====== */
+const SUBJECTS = {
+  scratch:   { name:"Scratch", in:"Scratch", unit:"khối lệnh", product:"chương trình", topics:"Giao diện Scratch, Khối Chuyển động, Khối Hiển thị (Looks), Khối Âm thanh, Sự kiện (Events), Điều khiển (Control), Cảm biến (Sensing), Toán tử (Operators), Biến (Variables), Danh sách (List), Vòng lặp, Câu lệnh điều kiện, Tọa độ X-Y, Nhân bản (Clone), Vẽ bằng bút (Pen), Tạo nhân vật (Sprite), Phông nền (Backdrop), Truyền tin (Broadcast), Hoạt hình, Làm game đơn giản" },
+  gamemaker: { name:"GameMaker", in:"GameMaker", unit:"khối lệnh", product:"trò chơi", topics:"Giao diện GameMaker, Sprite, Object, Room, Create Event, Step Event, Draw Event, Alarm, Collision, Bàn phím & Chuột, Di chuyển (Speed & Direction), Path, Biến (Variables), Câu lệnh điều kiện, Vòng lặp, Tạo & Xóa đối tượng (Instance), Điểm số & Máu, Âm thanh, Hoạt ảnh (Animation), Camera & View" },
+  python:    { name:"Python – Qt Designer", in:"lập trình Python với Qt Designer", unit:"thành phần giao diện và câu lệnh", product:"ứng dụng", topics:"Cài đặt môi trường, Cú pháp Python cơ bản, Biến & kiểu dữ liệu, Câu lệnh điều kiện, Vòng lặp, Hàm, Danh sách & Từ điển, Giao diện Qt Designer, Widget (Label, Button...), Layout, Signal & Slot, Sự kiện nút bấm, Kết nối UI với Python, Xử lý dữ liệu nhập, Hiển thị kết quả, Hộp thoại (MessageBox), Đọc/Ghi file, Xử lý ngoại lệ" },
+  web:       { name:"Web – HTML/CSS/JS", in:"lập trình web (HTML, CSS, JS)", unit:"thẻ, thuộc tính và đoạn mã", product:"trang web", topics:"HTML cơ bản, Thẻ văn bản, Hình ảnh & Liên kết, Danh sách & Bảng, Biểu mẫu (Form), CSS cơ bản, Màu sắc & Font, Box Model, Bố cục Flexbox, CSS Grid, Responsive, JavaScript cơ bản, Biến & kiểu dữ liệu, Hàm, Câu lệnh điều kiện, Vòng lặp, Sự kiện (Event), DOM, Thay đổi nội dung trang, Hiệu ứng đơn giản" },
+  algo:      { name:"Computer Science", in:"môn Computer Science", unit:"các kiến thức và thuật toán", product:"chương trình", topics:"Tư duy thuật toán, Biến & kiểu dữ liệu, Câu lệnh điều kiện, Vòng lặp, Hàm, Mảng (Array), Chuỗi (String), Tìm kiếm (Searching), Sắp xếp (Sorting), Đệ quy, Ngăn xếp (Stack), Hàng đợi (Queue), Danh sách liên kết, Cây (Tree), Đồ thị (Graph), Cấu trúc dữ liệu, Độ phức tạp thuật toán, Quy hoạch động" }
+};
+
+/* ====== MẪU CÂU NỘI DUNG ====== */
+const CONTENT = {
+  open: [
+    "Tìm hiểu và thực hành các {unit} quan trọng trong {subject} như {topics}.",
+    "Buổi học giúp học viên làm quen và thực hành các {unit} trong {subject} như {topics}.",
+    "Học viên được tìm hiểu và rèn luyện các {unit} cơ bản trong {subject} như {topics}.",
+    "Nội dung buổi học tập trung vào các {unit} quan trọng trong {subject}: {topics}.",
+    "Trong buổi học, học viên khám phá và thực hành các {unit} trong {subject} như {topics}."
+  ],
+  mid: [
+    "Học viên được hướng dẫn cách sử dụng và kết hợp {topics} để xử lý các tình huống trong {product}.",
+    "Giáo viên hướng dẫn học viên cách vận dụng {topics} vào các bài tập cụ thể.",
+    "Qua từng ví dụ, học viên hiểu rõ vai trò của {topics} và cách phối hợp chúng với nhau.",
+    "Học viên thực hành áp dụng {topics} để giải quyết các yêu cầu trong {product}.",
+    "Các nội dung {topics} được minh họa bằng ví dụ trực quan và bài tập đi kèm."
+  ],
+  skill: [
+    "Bên cạnh kiến thức chuyên môn, buổi học còn giúp học viên phát triển tư duy logic, khả năng phân tích và giải quyết vấn đề.",
+    "Qua đó, học viên rèn luyện tư duy lập trình, tính cẩn thận và khả năng tự tìm tòi, sáng tạo.",
+    "Buổi học cũng góp phần hình thành thói quen tư duy có hệ thống và kỹ năng làm việc độc lập cho học viên.",
+    "Đồng thời, học viên được khuyến khích sáng tạo và chủ động thử nghiệm các ý tưởng của riêng mình.",
+    "Việc thực hành liên tục giúp học viên ghi nhớ kiến thức lâu hơn và vận dụng linh hoạt vào các bài tập mở rộng.",
+    "Học viên cũng từng bước làm quen với quy trình tư duy của một lập trình viên: phân tích yêu cầu, chia nhỏ vấn đề và kiểm thử kết quả."
+  ],
+  end: [
+    "Thông qua các bài tập thực hành, học viên từng bước hiểu được cách vận dụng các {unit} để xây dựng những chức năng cơ bản trong {product}.",
+    "Sau buổi học, học viên có thể tự kết hợp các {unit} để tạo ra những chức năng cơ bản trong {product}.",
+    "Các bài thực hành giúp học viên dần thành thạo việc kết hợp các {unit} trong {product}.",
+    "Nhờ luyện tập, học viên nắm được cách phối hợp các {unit} để hoàn thiện {product} của mình.",
+    "Qua thực hành, học viên rèn được tư duy kết hợp các {unit} để xây dựng {product}."
+  ]
+};
+
+/* ====== MẪU CÂU NHẬN XÉT ====== */
+const LEVELS = {
+  tot: {
+    open: [
+      "Em tiếp thu tốt các kiến thức về {topics} trong {subject}.",
+      "Em tiếp thu bài tốt, hiểu được cách hoạt động của {topics}.",
+      "Em có thái độ học tập tốt, tiếp thu kiến thức nhanh.",
+      "Em nắm vững các kiến thức về {topics} của buổi học.",
+      "Em hiểu nhanh và vận dụng tốt {topics}."
+    ],
+    mid: [
+      "Em thực hiện đầy đủ các bài tập thực hành, hiểu được cách vận dụng {unit} vào việc {build}.",
+      "Em hoàn thành các bài thực hành đúng yêu cầu và thể hiện sự tập trung trong quá trình học tập.",
+      "Em hoàn thành đầy đủ các nội dung thực hành và biết cách áp dụng vào việc {build}.",
+      "Em đã hiểu được cách sử dụng {unit} và có thể áp dụng vào bài thực hành để {build}."
+    ],
+    end: [
+      "Tinh thần học tập tốt và luôn theo kịp tiến độ của lớp.",
+      "Em duy trì sự tập trung và làm bài rất nghiêm túc.",
+      "Thái độ học tập tích cực, chủ động trong giờ học.",
+      "Em theo kịp tốt tiến độ chung của lớp."
+    ]
+  },
+  kha: {
+    open: [
+      "Em học tập nghiêm túc, theo kịp nội dung của lớp.",
+      "Em học tập nghiêm túc, tiếp thu bài tốt.",
+      "Em nắm được các kiến thức cơ bản của buổi học.",
+      "Em có ý thức học tập tốt và theo dõi bài đầy đủ."
+    ],
+    mid: [
+      "Em hoàn thành tốt các bài thực hành và nắm được cách sử dụng {unit} đã học.",
+      "Em hoàn thành đầy đủ các yêu cầu trong buổi học và vận dụng khá hiệu quả vào các bài tập được giao.",
+      "Em hoàn thành được các bài tập theo hướng dẫn và hiểu cách áp dụng vào thực tế.",
+      "Em làm được các bài tập cơ bản và đang dần quen với cách kết hợp {unit}."
+    ],
+    end: [
+      "Em cần luyện tập thêm để vận dụng linh hoạt hơn.",
+      "Nếu tiếp tục cố gắng, em sẽ tiến bộ nhanh hơn nữa.",
+      "Em duy trì tinh thần này sẽ tiến bộ tốt.",
+      ""
+    ]
+  },
+  can: {
+    open: [
+      "Em nắm được các kiến thức cơ bản của buổi học và hoàn thành được các bài tập theo hướng dẫn.",
+      "Em theo dõi bài và làm được các bài tập cơ bản theo hướng dẫn của giáo viên.",
+      "Em tiếp thu được những nội dung cơ bản của buổi học."
+    ],
+    mid: [
+      "Tuy nhiên, em cần tập trung hơn và chủ động thực hành thêm để nắm chắc kiến thức.",
+      "Em cần luyện tập thêm ở nhà để theo kịp tiến độ chung của lớp.",
+      "Một số phần em còn lúng túng, cần được hỗ trợ và ôn lại thêm."
+    ],
+    end: [
+      "Giáo viên sẽ tiếp tục theo sát để giúp em tiến bộ hơn.",
+      "Mong phụ huynh nhắc em ôn bài thêm để củng cố kiến thức.",
+      "Em cố gắng thêm một chút nữa sẽ tiến bộ rõ rệt."
+    ]
+  }
+};
+
+const ONLINE_NOTE = "Tuy nhiên, em thường tham gia học trực tuyến nên việc trao đổi và hỗ trợ trực tiếp còn hạn chế. Nếu có điều kiện học trực tiếp nhiều hơn, giáo viên sẽ dễ dàng hướng dẫn chi tiết và giúp em tiến bộ nhanh hơn.";
+
+/* ====== RNG có hạt giống ====== */
+let version = 1;
+let RNG = Math.random;
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function rnd() { return RNG(); }
+function pick(arr) { return arr[Math.floor(rnd() * arr.length)]; }
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* ====== TÚI TỔ HỢP ====== */
+let _bags, _idx;
+function resetBags() { _bags = {}; _idx = {}; }
+function nextCombo(level) {
+  const L = LEVELS[level];
+  if (!_bags[level] || _idx[level] >= _bags[level].length) {
+    const c = [];
+    for (let o = 0; o < L.open.length; o++)
+      for (let m = 0; m < L.mid.length; m++)
+        for (let e = 0; e < L.end.length; e++) c.push({ o, m, e });
+    _bags[level] = shuffle(c); _idx[level] = 0;
+  }
+  return _bags[level][_idx[level]++];
+}
+
+/* ====== TIỆN ÍCH ====== */
+function fmtTopics(list) {
+  if (list.length === 0) return "";
+  if (list.length === 1) return list[0];
+  return list.slice(0, -1).join(", ") + " và " + list[list.length - 1];
+}
+function curSubject() { return SUBJECTS[document.getElementById("subject").value]; }
+function fillVars(t, topicsStr) {
+  const s = curSubject();
+  const build = "xây dựng các chức năng cơ bản trong " + s.product;
+  return t.replace(/{topics}/g, topicsStr).replace(/{subject}/g, s.in)
+          .replace(/{unit}/g, s.unit).replace(/{product}/g, s.product).replace(/{build}/g, build);
+}
+function setDefaultTopics() {
+  const list = curSubject().topics.split(",").map(s => s.trim()).filter(Boolean);
+  document.getElementById("topics").value = list.slice(0, 4).join(", ");
+}
+
+function onSubjectChange() {
+  setDefaultTopics();
+  generate();
+}
+
+/* ====== POPUP CHỌN KIẾN THỨC ====== */
+function openTopicsModal() {
+  const subj = curSubject();
+  document.getElementById("modalSubject").textContent = "Môn: " + subj.name;
+
+  const defaults = subj.topics.split(",").map(s => s.trim()).filter(Boolean);
+  const current = document.getElementById("topics").value.split(",").map(s => s.trim()).filter(Boolean);
+
+  // gộp: kiến thức mặc định của môn + kiến thức tự thêm đang có trong ô
+  const all = [...defaults];
+  current.forEach(t => { if (!all.includes(t)) all.push(t); });
+
+  // tick những cái đang được chọn (lần đầu chưa chọn gì thì tick hết)
+  const checked = new Set(current.length ? current : defaults);
+
+  renderChecklist(all, checked);
+  document.getElementById("customTopic").value = "";
+  document.getElementById("topicsModal").classList.add("show");
+}
+
+function renderChecklist(list, checkedSet) {
+  document.getElementById("topicsChecklist").innerHTML = list.map(t => {
+    const on = checkedSet.has(t);
+    return `<label class="topic-item${on ? " on" : ""}">
+      <input type="checkbox" value="${escapeHtml(t)}" ${on ? "checked" : ""} onchange="this.closest('.topic-item').classList.toggle('on', this.checked)">
+      <span>${escapeHtml(t)}</span>
+    </label>`;
+  }).join("");
+}
+
+function addCustomTopic() {
+  const inp = document.getElementById("customTopic");
+  const val = inp.value.trim();
+  if (!val) return;
+  const exists = [...document.querySelectorAll("#topicsChecklist input")].some(c => c.value.toLowerCase() === val.toLowerCase());
+  if (!exists) {
+    const div = document.createElement("div");
+    div.innerHTML = `<label class="topic-item on">
+      <input type="checkbox" value="${escapeHtml(val)}" checked onchange="this.closest('.topic-item').classList.toggle('on', this.checked)">
+      <span>${escapeHtml(val)}</span>
+    </label>`;
+    document.getElementById("topicsChecklist").appendChild(div.firstElementChild);
+  }
+  inp.value = "";
+  inp.focus();
+}
+
+function toggleAllTopics(state) {
+  document.querySelectorAll("#topicsChecklist input").forEach(c => {
+    c.checked = state;
+    c.closest(".topic-item").classList.toggle("on", state);
+  });
+}
+
+function applyTopics() {
+  const chosen = [...document.querySelectorAll("#topicsChecklist input:checked")].map(c => c.value);
+  document.getElementById("topics").value = chosen.join(", ");
+  closeTopicsModal();
+  generate();
+}
+
+function closeTopicsModal() {
+  document.getElementById("topicsModal").classList.remove("show");
+}
+
+/* ====== DANH SÁCH LỚP ====== */
+const stateMap = {};
+let roster = [];
+
+function syncRoster() {
+  const names = document.getElementById("names").value.split("\n").map(s => s.trim()).filter(Boolean);
+  roster = names.map(n => {
+    if (!stateMap[n]) stateMap[n] = { level: "tot", mode: "tructiep", note: "" };
+    return { name: n, st: stateMap[n] };
+  });
+  renderRoster();
+  generate();
+}
+
+function initials(name) {
+  const parts = name.replace(/\./g, " ").split(/\s+/).filter(Boolean);
+  const last = parts[parts.length - 1] || "?";
+  return last.charAt(0).toUpperCase();
+}
+
+function renderRoster() {
+  const box = document.getElementById("roster");
+  if (!roster.length) {
+    box.innerHTML = '<div class="empty">👋 Chưa có học sinh — dán danh sách tên vào ô trên là xong!</div>';
+    return;
+  }
+  box.innerHTML = roster.map((r, i) => {
+    const s = r.st;
+    const aL = l => s.level === l ? " a-" + l : "";
+    return `<div class="stu">
+      <div class="row1">
+        <div class="ava ${s.level}">${escapeHtml(initials(r.name))}</div>
+        <span class="nm">${escapeHtml(r.name)}</span>
+        <div class="seg">
+          <button class="${aL("tot")}" onclick="setLevel(${i},'tot')">Tốt</button>
+          <button class="${aL("kha")}" onclick="setLevel(${i},'kha')">Khá</button>
+          <button class="${aL("can")}" onclick="setLevel(${i},'can')">Trung bình</button>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function escapeHtml(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+
+function setLevel(i, lv) { roster[i].st.level = lv; renderRoster(); generate(); }
+
+/* ====== SINH NỘI DUNG ====== */
+function buildContent(topicsStr) {
+  let out = fillVars(pick(CONTENT.open), topicsStr) + " ";
+  out += fillVars(pick(CONTENT.mid), topicsStr) + " ";
+  out += fillVars(pick(CONTENT.skill), topicsStr) + " ";
+  out += fillVars(pick(CONTENT.end), topicsStr);
+  return out;
+}
+
+function buildStudentBody(r, topicsStr) {
+  const s = r.st;
+  const L = LEVELS[s.level];
+  const c = nextCombo(s.level);
+  let parts = [fillVars(L.open[c.o], topicsStr)];
+  parts.push(fillVars(L.mid[c.m], topicsStr));
+  const e = L.end[c.e]; if (e) parts.push(e);
+  return parts.join(" ");
+}
+
+/* ====== TẠO TOÀN BỘ (in đậm tên + tiêu đề) ====== */
+function generate() {
+  RNG = mulberry32((version * 2654435761) >>> 0 || 1);
+  resetBags();
+
+  const topics = document.getElementById("topics").value.split(",").map(x => x.trim()).filter(Boolean);
+  const topicsStr = fmtTopics(topics);
+
+  document.getElementById("count").textContent = roster.length ? `${roster.length} học sinh` : "";
+
+  const introRaw = document.getElementById("title").value + " xin nhận xét về buổi học vừa qua ạ:";
+  const content = buildContent(topicsStr);
+  // tính nhận xét MỖI EM 1 LẦN để bản đậm và bản thường giống hệt nhau
+  const students = roster.map(r => ({ name: r.name, body: buildStudentBody(r, topicsStr) }));
+
+  // Dòng trống bằng ký tự Braille trống (U+2800): nhìn như khoảng trắng
+  // nhưng KHÔNG bị Zalo gộp mất → giữ được cách dòng kể cả khi dán chữ đậm.
+  const BL = "⠀";
+
+  const para = inner => "<div>" + inner + "</div>";
+  const blocks = [];
+  blocks.push(para(escapeHtml(introRaw)));
+  blocks.push(para('<b>Nội dung:</b> <b style="color:#f27806">' + escapeHtml(content) + '</b>'));
+  blocks.push(para('<b style="color:#15a85f">Nhận xét cá nhân:</b>'));
+  students.forEach(st => blocks.push(para("<b>" + escapeHtml(st.name) + ":</b> " + escapeHtml(st.body))));
+
+  // chèn 1 dòng trống (Braille) giữa các đoạn
+  document.getElementById("output").innerHTML = blocks.join(para(BL));
+
+  document.getElementById("copied").textContent = "";
+}
+
+function newVariation() { version++; generate(); }
+
+function selectOutput() {
+  const r = document.createRange();
+  r.selectNodeContents(document.getElementById("output"));
+  const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+}
+
+function flash(msg) {
+  document.getElementById("copied").textContent = msg;
+  setTimeout(() => document.getElementById("copied").textContent = "", 2500);
+}
+
+/* 1 NÚT DUY NHẤT: copy bản có ĐẬM, dòng trống dùng ký tự Braille nên
+   dán sang Zalo giữ được CẢ chữ đậm LẪN cách dòng. execCommand tự đưa
+   cả text/html (đậm) và text/plain (kèm ký tự trống) vào clipboard. */
+function copyOut() {
+  selectOutput();
+  let ok = false;
+  try { ok = document.execCommand("copy"); } catch (e) {}
+  window.getSelection().removeAllRanges();
+  flash(ok ? "✓ Đã copy! Dán vào Zalo bằng Ctrl+V" : "Hãy bấm Ctrl+C để copy");
+}
+
+/* ====== KHỞI TẠO ====== */
+setDefaultTopics();
+syncRoster();
+</script>
+</body>
+</html>

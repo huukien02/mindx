@@ -167,18 +167,33 @@ const SUBJECTS = {
 /* ====== MẪU CÂU NỘI DUNG ====== */
 const CONTENT = {
   open: [
-    "Tìm hiểu và thực hành các {unit} quan trọng trong {subject} như {topics}.",
-    "Buổi học giúp học viên làm quen và thực hành các {unit} trong {subject} như {topics}.",
-    "Học viên được tìm hiểu và rèn luyện các {unit} cơ bản trong {subject} như {topics}.",
-    "Nội dung buổi học tập trung vào các {unit} quan trọng trong {subject}: {topics}.",
-    "Trong buổi học, học viên khám phá và thực hành các {unit} trong {subject} như {topics}."
+    "Buổi học tập trung vào các {unit} quan trọng trong {subject}: {topics}.",
+    "Trong buổi học, học viên được tìm hiểu và thực hành các {unit} trong {subject} gồm {topics}.",
+    "Nội dung chính của buổi học xoay quanh các {unit} trong {subject} như {topics}.",
+    "Học viên làm quen và rèn luyện các {unit} cơ bản trong {subject}, cụ thể là {topics}.",
+    "Buổi học giới thiệu và hướng dẫn thực hành các {unit} trong {subject}: {topics}.",
+    "Chủ đề buổi học là các {unit} trong {subject}, bao gồm {topics}.",
+    "Mở đầu buổi học, giáo viên giới thiệu cho học viên các {unit} cốt lõi trong {subject} như {topics}.",
+    "Ở buổi học này, học viên bước đầu tiếp cận và thực hành các {unit} trong {subject}: {topics}.",
+    "Buổi học mang đến cho học viên cái nhìn tổng quan về các {unit} trong {subject}, trong đó có {topics}.",
+    "Trọng tâm của buổi học là giúp học viên hiểu và sử dụng thành thạo các {unit} trong {subject} gồm {topics}.",
+    "Học viên được dẫn dắt khám phá các {unit} trong {subject} một cách bài bản, bắt đầu từ {topics}.",
+    "Theo lộ trình của môn {subject}, buổi học lần này đi sâu vào các {unit}: {topics}."
   ],
+  // mid/skill/end KHÔNG nhắc lại {topics} nữa để tránh lặp danh sách kiến thức 2 lần
   mid: [
-    "Học viên được hướng dẫn cách sử dụng và kết hợp {topics} để xử lý các tình huống trong {product}.",
-    "Giáo viên hướng dẫn học viên cách vận dụng {topics} vào các bài tập cụ thể.",
-    "Qua từng ví dụ, học viên hiểu rõ vai trò của {topics} và cách phối hợp chúng với nhau.",
-    "Học viên thực hành áp dụng {topics} để giải quyết các yêu cầu trong {product}.",
-    "Các nội dung {topics} được minh họa bằng ví dụ trực quan và bài tập đi kèm."
+    "Học viên được hướng dẫn cách vận dụng và kết hợp các kiến thức này để xử lý những tình huống cụ thể trong {product}.",
+    "Giáo viên hướng dẫn từng bước, giúp học viên hiểu cách áp dụng các nội dung trên vào bài tập thực tế.",
+    "Qua từng ví dụ minh họa, học viên hiểu rõ vai trò của mỗi phần và cách phối hợp chúng với nhau.",
+    "Học viên thực hành ngay tại lớp, áp dụng những gì vừa học để giải quyết các yêu cầu trong {product}.",
+    "Mỗi nội dung đều đi kèm ví dụ trực quan và bài tập nhỏ để học viên luyện tập, củng cố ngay tại lớp.",
+    "Các kiến thức được sắp xếp từ dễ đến khó, giúp học viên tiếp cận tự nhiên và dễ ghi nhớ.",
+    "Giáo viên vừa giảng lý thuyết vừa cho học viên thao tác trực tiếp, để các em hiểu rồi làm được ngay.",
+    "Sau mỗi phần lý thuyết, học viên lập tức được làm bài tập áp dụng để biến kiến thức thành kỹ năng.",
+    "Học viên được khuyến khích đặt câu hỏi và tự thử nghiệm, từ đó hiểu sâu hơn bản chất của vấn đề.",
+    "Thông qua các tình huống thực tế trong {product}, học viên thấy được ý nghĩa và cách dùng của từng nội dung.",
+    "Giáo viên đồng hành sát sao, kịp thời gợi ý và chỉnh sửa để học viên không bị bỏ sót kiến thức nào.",
+    "Các nội dung được liên hệ chặt chẽ với nhau, giúp học viên hình dung được bức tranh tổng thể của bài học."
   ],
   skill: [
     "Bên cạnh kiến thức chuyên môn, buổi học còn giúp học viên phát triển tư duy logic, khả năng phân tích và giải quyết vấn đề.",
@@ -186,14 +201,29 @@ const CONTENT = {
     "Buổi học cũng góp phần hình thành thói quen tư duy có hệ thống và kỹ năng làm việc độc lập cho học viên.",
     "Đồng thời, học viên được khuyến khích sáng tạo và chủ động thử nghiệm các ý tưởng của riêng mình.",
     "Việc thực hành liên tục giúp học viên ghi nhớ kiến thức lâu hơn và vận dụng linh hoạt vào các bài tập mở rộng.",
-    "Học viên cũng từng bước làm quen với quy trình tư duy của một lập trình viên: phân tích yêu cầu, chia nhỏ vấn đề và kiểm thử kết quả."
+    "Học viên cũng dần quen với cách làm bài có thứ tự: đọc kỹ yêu cầu, làm từng bước rồi kiểm tra lại kết quả.",
+    "Ngoài ra, buổi học rèn cho học viên sự kiên nhẫn và thói quen tự kiểm tra, sửa lỗi khi làm bài.",
+    "Học viên cũng học được cách làm bài gọn gàng và theo đúng từng bước hướng dẫn.",
+    "Không chỉ làm đúng bài, học viên còn được khuyến khích thử thêm những cách làm khác nhau.",
+    "Buổi học nuôi dưỡng sự tò mò và niềm yêu thích lập trình, giúp học viên ham học hỏi hơn.",
+    "Qua việc tự sửa lỗi, học viên dần hình thành tính cẩn thận và không ngại thử lại khi chưa làm được.",
+    "Bên cạnh đó, các em còn được rèn sự tập trung và tính kiên trì làm bài đến khi hoàn thành.",
+    "Buổi học cũng khuyến khích học viên chịu khó suy nghĩ và mạnh dạn hỏi khi chưa hiểu.",
+    "Qua thực hành, học viên rèn được tính chăm chỉ và thói quen làm bài đến nơi đến chốn."
   ],
   end: [
     "Thông qua các bài tập thực hành, học viên từng bước hiểu được cách vận dụng các {unit} để xây dựng những chức năng cơ bản trong {product}.",
     "Sau buổi học, học viên có thể tự kết hợp các {unit} để tạo ra những chức năng cơ bản trong {product}.",
     "Các bài thực hành giúp học viên dần thành thạo việc kết hợp các {unit} trong {product}.",
     "Nhờ luyện tập, học viên nắm được cách phối hợp các {unit} để hoàn thiện {product} của mình.",
-    "Qua thực hành, học viên rèn được tư duy kết hợp các {unit} để xây dựng {product}."
+    "Qua thực hành, học viên rèn được tư duy kết hợp các {unit} để xây dựng {product}.",
+    "Kết thúc buổi học, học viên đã có thể tự tay tạo ra một {product} đơn giản từ những {unit} vừa học.",
+    "Khép lại buổi học, các em không chỉ hiểu lý thuyết mà còn biết áp dụng các {unit} vào {product} cụ thể.",
+    "Sau buổi học, học viên đã có nền tảng vững để tiếp tục phát triển những {product} phức tạp hơn ở các buổi sau.",
+    "Những {unit} của buổi học là viên gạch nền giúp học viên tự tin xây dựng {product} hoàn chỉnh về sau.",
+    "Qua buổi học, học viên hình dung rõ quy trình từ ý tưởng đến một {product} thực tế bằng các {unit} đã học.",
+    "Cuối buổi, học viên tổng kết lại kiến thức và biết cách liên kết các {unit} để tạo nên một {product} có ý nghĩa.",
+    "Với nền tảng từ buổi học, học viên đã sẵn sàng vận dụng các {unit} một cách linh hoạt vào {product} của riêng mình."
   ]
 };
 
@@ -201,65 +231,172 @@ const CONTENT = {
 const LEVELS = {
   tot: {
     open: [
-      "Em tiếp thu tốt các kiến thức về {topics} trong {subject}.",
-      "Em tiếp thu bài tốt, hiểu được cách hoạt động của {topics}.",
-      "Em có thái độ học tập tốt, tiếp thu kiến thức nhanh.",
-      "Em nắm vững các kiến thức về {topics} của buổi học.",
-      "Em hiểu nhanh và vận dụng tốt {topics}."
+      "Em tiếp thu tốt các kiến thức về {topics} trong buổi học.",
+      "Em hiểu bài nhanh và nắm chắc cách hoạt động của {topics}.",
+      "Em có thái độ học tập tích cực, tiếp thu kiến thức rất nhanh.",
+      "Em nắm vững những nội dung {topics} của buổi học.",
+      "Em hiểu nhanh và biết cách vận dụng tốt {topics}.",
+      "Em tập trung nghe giảng và tiếp thu bài rất tốt.",
+      "Em chủ động trong giờ học và nắm bài chắc chắn.",
+      "Em hiểu bài chắc chắn và làm bài rất tự tin.",
+      "Em nắm bài nhanh, lại còn nhớ và liên hệ được {topics} với những phần đã học trước.",
+      "Em tỏ ra thích thú với bài học và tiếp thu {topics} khá chắc chắn.",
+      "Em học tập nghiêm túc, chú ý nghe giảng và trả lời tốt các câu hỏi về {topics}.",
+      "Em tiếp thu nhanh, chỉ cần hướng dẫn một lần là đã làm được bài về {topics}.",
+      "Em là một trong những bạn tiếp thu tốt của lớp, hiểu và vận dụng tốt {topics}.",
+      "Em khá tự tin với kiến thức mới và nắm được {topics} ngay tại lớp."
     ],
     mid: [
-      "Em thực hiện đầy đủ các bài tập thực hành, hiểu được cách vận dụng {unit} vào việc {build}.",
-      "Em hoàn thành các bài thực hành đúng yêu cầu và thể hiện sự tập trung trong quá trình học tập.",
-      "Em hoàn thành đầy đủ các nội dung thực hành và biết cách áp dụng vào việc {build}.",
-      "Em đã hiểu được cách sử dụng {unit} và có thể áp dụng vào bài thực hành để {build}."
+      "Em thực hiện đầy đủ các bài tập thực hành và biết cách vận dụng {unit} vào việc {build}.",
+      "Em hoàn thành các bài thực hành đúng yêu cầu, thể hiện sự tập trung trong suốt buổi học.",
+      "Em hoàn thành tốt nội dung thực hành và biết cách áp dụng vào việc {build}.",
+      "Em đã quen với cách sử dụng {unit} và áp dụng được vào bài thực hành.",
+      "Em làm bài tập nhanh, chính xác và biết tự kiểm tra lại kết quả của mình.",
+      "Em không chỉ làm đúng bài mà còn chịu khó thử thêm những ý tưởng của riêng mình.",
+      "Em hoàn thành bài tập khá nhanh và còn vui vẻ giúp đỡ các bạn xung quanh.",
+      "Em biết cách kết hợp nhiều {unit} với nhau để hoàn thành bài tập gọn gàng.",
+      "Em làm bài cẩn thận, trình bày rõ ràng và làm tốt cả những phần khó hơn.",
+      "Em vận dụng {unit} khá linh hoạt và biết tự nghĩ cách làm cho bài tập.",
+      "Em không ngại thử, gặp lỗi là chịu khó tự tìm cách sửa cho đến khi làm được."
     ],
     end: [
       "Tinh thần học tập tốt và luôn theo kịp tiến độ của lớp.",
       "Em duy trì sự tập trung và làm bài rất nghiêm túc.",
-      "Thái độ học tập tích cực, chủ động trong giờ học.",
-      "Em theo kịp tốt tiến độ chung của lớp."
+      "Thái độ học tập tích cực, chủ động phát biểu trong giờ.",
+      "Em theo kịp tốt tiến độ chung của lớp.",
+      "Em giữ được tinh thần học tập này sẽ tiến bộ rất nhanh.",
+      "Giáo viên đánh giá cao tinh thần học tập của em.",
+      "Em chăm ngoan và góp phần tạo không khí học tập vui vẻ cho cả lớp.",
+      "Mong em tiếp tục giữ sự chăm chỉ và hứng thú này trong các buổi học tới.",
+      "Với đà này, em sẽ tiếp thu tốt cả những bài khó hơn sắp tới.",
+      "Giáo viên rất vui khi thấy em ngày càng tự tin và yêu thích môn học."
     ]
   },
   kha: {
     open: [
-      "Em học tập nghiêm túc, theo kịp nội dung của lớp.",
-      "Em học tập nghiêm túc, tiếp thu bài tốt.",
-      "Em nắm được các kiến thức cơ bản của buổi học.",
-      "Em có ý thức học tập tốt và theo dõi bài đầy đủ."
+      "Em học tập nghiêm túc và theo kịp nội dung của lớp.",
+      "Em chú ý nghe giảng và tiếp thu bài khá tốt.",
+      "Em nắm được những kiến thức cơ bản của buổi học.",
+      "Em có ý thức học tập tốt và theo dõi bài đầy đủ.",
+      "Em hiểu được phần lớn nội dung {topics} trong buổi học.",
+      "Em tiếp thu bài ổn và làm theo hướng dẫn khá tốt.",
+      "Em tham gia học tập đều đặn và chịu khó làm bài.",
+      "Em có cố gắng trong giờ học và nắm được những ý chính về {topics}.",
+      "Em lắng nghe giảng bài chăm chú và ghi nhớ được phần lớn kiến thức buổi học.",
+      "Em tiếp thu khá đều, hiểu được {topics} ở mức cơ bản và đang tiến bộ dần.",
+      "Em giữ thái độ học tập tích cực và sẵn sàng làm theo hướng dẫn của giáo viên.",
+      "Em nắm bài tương đối tốt, một vài chỗ khó cần giáo viên nhắc lại là hiểu ngay."
     ],
     mid: [
       "Em hoàn thành tốt các bài thực hành và nắm được cách sử dụng {unit} đã học.",
-      "Em hoàn thành đầy đủ các yêu cầu trong buổi học và vận dụng khá hiệu quả vào các bài tập được giao.",
-      "Em hoàn thành được các bài tập theo hướng dẫn và hiểu cách áp dụng vào thực tế.",
-      "Em làm được các bài tập cơ bản và đang dần quen với cách kết hợp {unit}."
+      "Em hoàn thành đầy đủ các yêu cầu trong buổi học và vận dụng khá hiệu quả vào bài tập.",
+      "Em làm được các bài tập theo hướng dẫn và hiểu cách áp dụng vào thực tế.",
+      "Em làm được các bài tập cơ bản và đang dần quen với cách kết hợp {unit}.",
+      "Em nắm được ý chính của bài và hoàn thành bài tập ở mức khá.",
+      "Em thực hành khá ổn, một vài phần nâng cao cần luyện thêm để thành thạo.",
+      "Em làm đúng phần lớn bài tập, chỉ còn đôi chỗ cần giáo viên gợi ý thêm.",
+      "Em đã biết dùng {unit} vào bài thực hành, tuy thao tác chưa thật nhanh nhưng kết quả tốt.",
+      "Em chịu khó hoàn thành bài và biết hỏi lại khi gặp phần chưa rõ.",
+      "Em vận dụng được kiến thức vào bài tập, nếu luyện thêm sẽ làm chủ {unit} tốt hơn."
     ],
     end: [
       "Em cần luyện tập thêm để vận dụng linh hoạt hơn.",
       "Nếu tiếp tục cố gắng, em sẽ tiến bộ nhanh hơn nữa.",
-      "Em duy trì tinh thần này sẽ tiến bộ tốt.",
+      "Em duy trì tinh thần này chắc chắn sẽ tiến bộ tốt.",
+      "Em chịu khó luyện thêm ở nhà sẽ nắm bài chắc hơn.",
+      "Chỉ cần mạnh dạn hơn một chút, em sẽ tiến bộ rõ rệt.",
+      "Em có nền tảng tốt, chỉ cần thực hành đều đặn là sẽ tiến bộ nhanh.",
+      "Giáo viên tin rằng em sẽ tiến bộ nhanh nếu giữ được sự chăm chỉ này.",
+      "Mong em tự tin hơn nữa và chủ động thử sức với các bài tập khó.",
       ""
     ]
   },
   can: {
     open: [
-      "Em nắm được các kiến thức cơ bản của buổi học và hoàn thành được các bài tập theo hướng dẫn.",
-      "Em theo dõi bài và làm được các bài tập cơ bản theo hướng dẫn của giáo viên.",
-      "Em tiếp thu được những nội dung cơ bản của buổi học."
+      "Em nắm được những kiến thức cơ bản của buổi học và làm được bài tập theo hướng dẫn.",
+      "Em theo dõi bài và hoàn thành được các bài tập cơ bản dưới sự hướng dẫn của giáo viên.",
+      "Em tiếp thu được những nội dung cơ bản của buổi học.",
+      "Em có cố gắng theo bài và làm được các phần cơ bản theo hướng dẫn.",
+      "Em nắm được ý chính của buổi học nhưng cần thêm thời gian để hiểu sâu hơn.",
+      "Em tham gia buổi học và làm quen được với những nội dung cơ bản.",
+      "Em có tham gia học tập, bước đầu tiếp cận được các kiến thức của buổi học.",
+      "Em hiểu được những phần đơn giản, các nội dung khó hơn cần giáo viên hỗ trợ thêm.",
+      "Em chịu khó làm bài theo hướng dẫn, tuy còn cần nhiều thời gian để nắm chắc.",
+      "Em đã quen dần với bài học, song việc ghi nhớ kiến thức vẫn cần được củng cố."
     ],
     mid: [
       "Tuy nhiên, em cần tập trung hơn và chủ động thực hành thêm để nắm chắc kiến thức.",
       "Em cần luyện tập thêm ở nhà để theo kịp tiến độ chung của lớp.",
-      "Một số phần em còn lúng túng, cần được hỗ trợ và ôn lại thêm."
+      "Một số phần em còn lúng túng, cần được hỗ trợ và ôn lại thêm.",
+      "Em còn thao tác khá chậm, cần luyện tập nhiều hơn để quen tay.",
+      "Em nên mạnh dạn đặt câu hỏi khi chưa hiểu để theo kịp bài tốt hơn.",
+      "Em cần ôn lại phần lý thuyết và làm lại bài tập cũ để củng cố nền tảng.",
+      "Em đôi lúc còn phân tâm trong giờ, nếu tập trung hơn sẽ tiếp thu tốt hơn nhiều.",
+      "Em cần rèn thói quen tự làm bài trước khi nhờ trợ giúp để hiểu sâu hơn."
     ],
     end: [
       "Giáo viên sẽ tiếp tục theo sát để giúp em tiến bộ hơn.",
       "Mong phụ huynh nhắc em ôn bài thêm để củng cố kiến thức.",
-      "Em cố gắng thêm một chút nữa sẽ tiến bộ rõ rệt."
+      "Em cố gắng thêm một chút nữa sẽ tiến bộ rõ rệt.",
+      "Giáo viên tin rằng em sẽ tiến bộ nếu chăm luyện tập hơn.",
+      "Rất mong phụ huynh đồng hành, nhắc em luyện tập đều đặn ở nhà.",
+      "Chỉ cần kiên trì thêm, em sẽ dần bắt nhịp được với cả lớp.",
+      "Giáo viên sẽ dành thêm thời gian kèm để em không bị hổng kiến thức.",
+      "Mong em đừng nản, mỗi buổi cố gắng một chút là sẽ tiến bộ."
     ]
   }
 };
 
 const ONLINE_NOTE = "Tuy nhiên, em thường tham gia học trực tuyến nên việc trao đổi và hỗ trợ trực tiếp còn hạn chế. Nếu có điều kiện học trực tiếp nhiều hơn, giáo viên sẽ dễ dàng hướng dẫn chi tiết và giúp em tiến bộ nhanh hơn.";
+
+/* ====== MẪU CÂU NHẬN XÉT CHUNG (chọn theo tỷ lệ Tốt/Khá/Trung Bình của lớp) ====== */
+const GENERAL = {
+  // phần lớn HS đạt mức Tốt
+  excellent: [
+    "Nhìn chung, cả lớp đã có một buổi học thật tuyệt vời — các bạn tiếp thu nhanh, hăng say thực hành và hoàn thành bài rất tốt.",
+    "Đây là một buổi học đáng khen của cả lớp: các bạn tập trung cao độ, hiểu bài sâu và làm bài đầy tự tin.",
+    "Tinh thần học tập của cả lớp rất đáng quý — các bạn chủ động, sôi nổi và đều đạt kết quả tốt.",
+    "Cả lớp thể hiện sự tiến bộ rõ rệt, các bạn không chỉ hiểu bài mà còn vận dụng rất linh hoạt vào thực hành.",
+    "Một buổi học tràn đầy năng lượng tích cực — hầu hết các bạn đều nắm vững kiến thức và làm bài xuất sắc.",
+    "Giáo viên rất vui khi thấy cả lớp học tập hăng hái và đạt thành quả tốt như buổi học hôm nay."
+  ],
+  // đa số Tốt/Khá, ít Trung Bình
+  good: [
+    "Nhìn chung, đây là một buổi học hiệu quả — phần lớn các bạn tiếp thu bài tốt và hoàn thành đầy đủ phần thực hành.",
+    "Buổi học diễn ra thật suôn sẻ, đa số các bạn nắm chắc kiến thức và làm bài rất đáng khen.",
+    "Cả lớp giữ được tinh thần học tập tích cực, hầu hết các bạn theo kịp tiến độ và làm bài tốt.",
+    "Đa số các bạn hiểu bài và vận dụng kiến thức vào bài tập một cách hiệu quả — một kết quả rất tích cực.",
+    "Buổi học đạt kết quả tốt, phần lớn các bạn nắm vững nội dung trọng tâm và ngày càng tiến bộ.",
+    "Cả lớp học tập chăm chỉ và nghiêm túc, đa số các bạn đều có sự tiến bộ đáng khích lệ."
+  ],
+  // lớp phân hóa: có giỏi, có một bộ phận Trung Bình
+  mixed: [
+    "Nhìn chung, các bạn đều rất cố gắng — nhiều bạn đã làm bài tốt, một vài bạn tuy cần thêm chút thời gian nhưng đều đang tiến bộ từng ngày.",
+    "Buổi học diễn ra tích cực: phần lớn các bạn nắm được kiến thức, một số bạn sẽ vững vàng hơn nữa nếu luyện tập thêm một chút.",
+    "Lớp học có nhiều bạn làm bài rất tốt; những bạn còn lại cũng đang nỗ lực và chỉ cần thêm thời gian là sẽ bắt nhịp tốt.",
+    "Đa số các bạn theo bài tốt, một vài bạn còn đôi chỗ bỡ ngỡ nhưng tinh thần học tập rất đáng khen.",
+    "Mặt bằng chung của lớp khá tốt — có bạn đã vững kiến thức, có bạn đang trên đà tiến bộ, tất cả đều rất đáng động viên.",
+    "Các bạn đều có cố gắng trong buổi học; với sự kiên trì này, những bạn còn chậm một nhịp sẽ sớm theo kịp các bạn khác."
+  ],
+  // phần lớn còn ở mức Trung Bình
+  needsWork: [
+    "Nhìn chung, các bạn đã có nhiều cố gắng — một số nội dung còn mới mẻ nên các bạn cần thêm thời gian luyện tập là sẽ nắm vững hơn.",
+    "Buổi học là bước khởi đầu để các bạn làm quen với kiến thức mới; chỉ cần ôn luyện thêm một chút, các bạn sẽ tiến bộ rõ rệt.",
+    "Các bạn đều chịu khó theo bài; phần kiến thức này cần luyện tập nhiều hơn, và giáo viên tin các bạn sẽ làm được.",
+    "Cả lớp đang nỗ lực tiếp cận nội dung mới — với sự kiên trì và luyện tập đều đặn, các bạn chắc chắn sẽ vững vàng hơn.",
+    "Đây là phần kiến thức tương đối thử thách, các bạn đã cố gắng rất nhiều và sẽ tiến bộ hơn sau vài buổi ôn luyện.",
+    "Các bạn cần thêm thời gian để quen với nội dung này, nhưng tinh thần cầu tiến của cả lớp rất đáng khích lệ."
+  ],
+  end: [
+    "Giáo viên mong các bạn tiếp tục giữ tinh thần này và luyện tập thêm ở nhà để ngày càng tiến bộ.",
+    "Rất mong quý phụ huynh đồng hành cùng con, nhẹ nhàng nhắc con ôn lại bài để con thêm vững vàng.",
+    "Giáo viên sẽ luôn theo sát và đồng hành cùng các bạn để các con học tập ngày một tốt hơn.",
+    "Mong các bạn giữ mãi niềm vui và sự chăm chỉ này trong những buổi học tiếp theo.",
+    "Giáo viên tin rằng các bạn sẽ ngày càng tiến bộ nếu giữ được tinh thần học tập đáng quý như hôm nay.",
+    "Mong quý phụ huynh tiếp tục động viên, khích lệ để các con thêm yêu thích và tự tin với môn học.",
+    "Cảm ơn các bạn đã cố gắng trong buổi học hôm nay, hẹn gặp lại các bạn ở buổi học tới thật vui và hiệu quả."
+  ]
+};
 
 /* ====== RNG có hạt giống ====== */
 let version = 1;
@@ -368,6 +505,7 @@ function addCustomTopic() {
 }
 
 function toggleAllTopics(state) {
+
   document.querySelectorAll("#topicsChecklist input").forEach(c => {
     c.checked = state;
     c.closest(".topic-item").classList.toggle("on", state);
@@ -441,6 +579,25 @@ function buildContent(topicsStr) {
   return out;
 }
 
+function buildGeneral() {
+  const total = roster.length;
+  if (!total) return "";
+  let tot = 0, kha = 0, can = 0;
+  roster.forEach(r => {
+    const l = r.st.level;
+    if (l === "tot") tot++; else if (l === "kha") kha++; else can++;
+  });
+  const rTot = tot / total, rGood = (tot + kha) / total, rCan = can / total;
+
+  let cat;
+  if (rTot >= 0.7) cat = "excellent";        // đa số Tốt
+  else if (rCan >= 0.5) cat = "needsWork";   // quá nửa Trung Bình
+  else if (rGood >= 0.7) cat = "good";        // Tốt + Khá chiếm phần lớn
+  else cat = "mixed";                          // lớp phân hóa
+
+  return pick(GENERAL[cat]) + " " + pick(GENERAL.end);
+}
+
 function buildStudentBody(r, topicsStr) {
   const s = r.st;
   const L = LEVELS[s.level];
@@ -463,6 +620,7 @@ function generate() {
 
   const introRaw = document.getElementById("title").value + " xin nhận xét về buổi học vừa qua ạ:";
   const content = buildContent(topicsStr);
+  const general = buildGeneral();
   // tính nhận xét MỖI EM 1 LẦN để bản đậm và bản thường giống hệt nhau
   const students = roster.map(r => ({ name: r.name, body: buildStudentBody(r, topicsStr) }));
 
@@ -474,6 +632,7 @@ function generate() {
   const blocks = [];
   blocks.push(para(escapeHtml(introRaw)));
   blocks.push(para('<b>Nội dung:</b> <b style="color:#f27806">' + escapeHtml(content) + '</b>'));
+  if (general) blocks.push(para('<b style="color:#db342e">Nhận xét chung:</b> ' + escapeHtml(general)));
   blocks.push(para('<b style="color:#15a85f">Nhận xét cá nhân:</b>'));
   students.forEach(st => blocks.push(para("<b>" + escapeHtml(st.name) + ":</b> " + escapeHtml(st.body))));
 

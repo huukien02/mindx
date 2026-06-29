@@ -156,6 +156,19 @@
   </div>
 </div>
 
+<!-- POPUP HƯỚNG DẪN DÁN ZALO -->
+<div class="modal-overlay" id="copyGuideModal" onclick="if(event.target===this)closeCopyGuide()">
+  <div class="modal" style="width:min(440px,94vw); text-align:center;">
+    <h3>✓ Đã copy nội dung!</h3>
+    <p class="sub" style="margin-bottom:14px;">Thầy cô tick như ảnh để giữ nguyên màu text khi dán vào Zalo nhé</p>
+    <img src="zalo-format-guide.png" alt="Bật định dạng tin nhắn trên Zalo (Ctrl + Shift + X)"
+         style="width:100%; border-radius:9px; border:1.5px solid var(--line); background:#2b2f36;">
+    <div class="modal-actions" style="justify-content:center; margin-top:16px;">
+      <button class="btn xs" onclick="closeCopyGuide()">Đã hiểu</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ====== MÔN HỌC ====== */
 const SUBJECTS = {
@@ -730,7 +743,11 @@ function copyOut() {
   try { ok = document.execCommand("copy"); } catch (e) {}
   window.getSelection().removeAllRanges();
   flash(ok ? "✓ Đã copy! Dán vào Zalo bằng Ctrl+V" : "Hãy bấm Ctrl+C để copy");
+  if (ok) openCopyGuide();
 }
+
+function openCopyGuide() { document.getElementById("copyGuideModal").classList.add("show"); }
+function closeCopyGuide() { document.getElementById("copyGuideModal").classList.remove("show"); }
 
 /* ====== KHỞI TẠO ====== */
 setDefaultTopics();

@@ -59,7 +59,19 @@
   .mode { border: 1.5px solid var(--line); background: #fff; color: #5a6273; border-radius: 9px; padding: 7px 13px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: .12s; }
   .mode:hover { background:#f2f5fb; }
   .mode.on { background: var(--purple); color: #fff; border-color: var(--purple); }
+  .seg.mode-seg { margin-bottom: 12px; }
+  .seg.mode-seg button.on { background: var(--pri); color: #fff; }
+  .seg.mode-seg button.on span { color: #fff !important; }
+  .score-inp { width: 62px; flex-shrink: 0; padding: 6px 8px; font-size: 13.5px; font-weight: 700; text-align: center; border: 1.5px solid var(--line); border-radius: 8px; background:#fff; }
+  .score-inp:focus { outline: none; border-color: var(--pri); box-shadow: 0 0 0 3px rgba(79,124,255,.15); }
+  .score-inp::-webkit-outer-spin-button, .score-inp::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .lvl-badge { flex-shrink: 0; width: 96px; text-align: center; padding: 7px 0; border-radius: 9px; font-size: 12.5px; font-weight: 700; color: #fff; }
+  .lvl-badge.tot { background: var(--green); }
+  .lvl-badge.kha { background: var(--orange); }
+  .lvl-badge.can { background: var(--pink); }
   .empty { color: var(--muted); font-size: 13px; padding: 18px; text-align:center; background:#fafbfe; border:1.5px dashed var(--line); border-radius:12px; }
+  .score-note { margin-top: 10px; padding: 10px 13px; background: #fff7e8; border: 1.5px solid #f5d488; border-radius: 10px; font-size: 12.5px; color: #7a5a12; line-height: 1.5; }
+  .score-note b { color: #b26a00; }
 
   #output { white-space: pre-wrap; font-size: 14px; line-height: 1.65; background: #fafbfe; border: 1.5px solid var(--line); border-radius: 11px; padding: 16px; min-height: 300px; cursor: text; }
   .copied { color: var(--green); font-size: 13px; font-weight: 700; margin-left: 8px; }
@@ -113,8 +125,16 @@
 
       <div class="card">
         <h2><span class="num">2</span> Danh sách học sinh <span id="count" class="count"></span></h2>
-        <label>Dán danh sách tên <span class="hint"> — Thầy cô vào LMS mục <span style="color:var(--pri); font-weight: 700">Điểm Danh</span> để copy nhé (Mỗi bạn 1 dòng)</span></label>
+        <div class="seg mode-seg">
+          <button id="modeReview" type="button" class="on" onclick="setScoreMode(false)">Chỉ nhận xét</button>
+          <button id="modeScore" type="button" onclick="setScoreMode(true)">Nhận xét + Điểm (<span style="font-size: 11.5px; font-weight: 600; color:rgb(250, 20, 89)"> Buổi 5 và 9</span> )</button>
+        </div>
+        <div id="scoreNote" class="score-note" style="display:none;">
+          ⚠️ <b>Chế độ này cần nhập điểm:</b> dán kèm điểm sau tên (vd <b>N. A. An&nbsp;&nbsp;9</b>), hoặc gõ điểm vào ô của từng bạn.
+        </div>
+        <label>Dán danh sách tên <span class="hint" id="namesHint"> — Thầy cô vào LMS mục <span style="color:var(--pri); font-weight: 700">Điểm Danh</span> để copy nhé (Mỗi bạn 1 dòng)</span></label>
         <textarea id="names" rows="4" oninput="syncRoster()" placeholder="N. P. N. Lâm&#10;H. A. Đức&#10;Đ. C. Nam&#10;..."></textarea>
+
         <div class="legend-mini">
           <span><i class="dot" style="background:var(--green)"></i> Tốt</span>
           <span><i class="dot" style="background:var(--orange)"></i> Khá</span>
@@ -594,12 +614,52 @@ function closeTopicsModal() {
 /* ====== DANH SÁCH LỚP ====== */
 const stateMap = {};
 let roster = [];
+let scoreMode = false;
+
+/* Thang 10: ≥8 Tốt · 6–7.9 Khá · <6 Trung bình */
+const LEVEL_LABEL = { tot: "Tốt", kha: "Khá", can: "Trung bình" };
+function scoreToLevel(x) { return x >= 8 ? "tot" : x >= 6 ? "kha" : "can"; }
+function fmtScore(x) { return (Math.round(x * 10) / 10).toString(); }
+
+/* Tách "tên + điểm ở cuối dòng". Hỗ trợ dấu tách: cách, tab, phẩy, chấm phẩy, gạch. */
+function parseLine(raw) {
+  const line = raw.trim();
+  if (scoreMode) {
+    const m = line.match(/^(.+?)[\s,;\t\-]+(\d+(?:[.,]\d+)?)$/);
+    if (m) {
+      const sc = parseFloat(m[2].replace(",", "."));
+      if (!isNaN(sc) && sc >= 0 && sc <= 100) return { name: m[1].trim(), score: sc };
+    }
+  }
+  return { name: line, score: null };
+}
+
+function setScoreMode(on) {
+  scoreMode = on;
+  document.getElementById("modeReview").classList.toggle("on", !on);
+  document.getElementById("modeScore").classList.toggle("on", on);
+  document.getElementById("scoreNote").style.display = on ? "block" : "none";
+  document.getElementById("names").placeholder = on
+    ? "N. P. N. Lâm  8.5\nH. A. Đức  9\nĐ. C. Nam  6.5\n..."
+    : "N. P. N. Lâm\nH. A. Đức\nĐ. C. Nam\n...";
+  document.getElementById("namesHint").innerHTML = on
+    ? ' — dán kèm điểm sẵn, hoặc dán tên rồi gõ điểm + <b>Enter</b> để sang bạn kế tiếp'
+    : ' — Thầy cô vào LMS mục <span style="color:var(--pri); font-weight: 700">Điểm Danh</span> để copy nhé (Mỗi bạn 1 dòng)';
+  syncRoster();
+  if (on) setTimeout(() => focusScore(0), 0);
+}
 
 function syncRoster() {
-  const names = document.getElementById("names").value.split("\n").map(s => s.trim()).filter(Boolean);
-  roster = names.map(n => {
-    if (!stateMap[n]) stateMap[n] = { level: "tot", mode: "tructiep", note: "" };
-    return { name: n, st: stateMap[n] };
+  const lines = document.getElementById("names").value.split("\n").map(s => s.trim()).filter(Boolean);
+  roster = lines.map(raw => {
+    const { name, score } = parseLine(raw);
+    if (!stateMap[name]) stateMap[name] = { level: "tot", manual: false, score: null };
+    const st = stateMap[name];
+    if (scoreMode && score != null) {
+      st.score = score;
+      if (!st.manual) st.level = scoreToLevel(score);
+    }
+    return { name, st };
   });
   renderRoster();
   generate();
@@ -620,15 +680,21 @@ function renderRoster() {
   box.innerHTML = roster.map((r, i) => {
     const s = r.st;
     const aL = l => s.level === l ? " a-" + l : "";
+    const control = scoreMode
+      ? `<input type="number" class="score-inp" min="0" max="10" step="0.1" inputmode="decimal"
+           placeholder="Điểm" value="${s.score != null ? fmtScore(s.score) : ""}"
+           oninput="setScore(${i}, this.value)" onkeydown="scoreKey(event, ${i})" onfocus="this.select()">
+         <span class="lvl-badge ${s.level}">${LEVEL_LABEL[s.level]}</span>`
+      : `<div class="seg">
+          <button class="${aL("tot")}" onclick="setLevel(${i},'tot')">Tốt</button>
+          <button class="${aL("kha")}" onclick="setLevel(${i},'kha')">Khá</button>
+          <button class="${aL("can")}" onclick="setLevel(${i},'can')">Trung bình</button>
+        </div>`;
     return `<div class="stu">
       <div class="row1">
         <div class="ava ${s.level}">${escapeHtml(initials(r.name))}</div>
         <span class="nm">${escapeHtml(r.name)}</span>
-        <div class="seg">
-          <button class="${aL("tot")}" onclick="setLevel(${i},'tot')">Tốt</button>
-          <button class="${aL("kha")}" onclick="setLevel(${i},'kha')">Khá</button>
-          <button class="${aL("can")}" onclick="setLevel(${i},'can')">Trung bình</button>
-        </div>
+        ${control}
       </div>
     </div>`;
   }).join("");
@@ -636,8 +702,39 @@ function renderRoster() {
 
 function escapeHtml(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 
-function setLevel(i, lv) { roster[i].st.level = lv; renderRoster(); generate(); }
+function setLevel(i, lv) { roster[i].st.manual = true; roster[i].st.level = lv; renderRoster(); generate(); }
 
+/* Gõ điểm: tự xếp loại, cập nhật màu thẻ tại chỗ (không re-render để giữ con trỏ khi gõ). */
+function setScore(i, val) {
+  const st = roster[i].st;
+  const num = val === "" ? null : parseFloat(String(val).replace(",", "."));
+  st.score = (num != null && !isNaN(num)) ? num : null;
+  st.manual = false;
+  if (st.score != null) st.level = scoreToLevel(st.score);
+  const card = document.querySelectorAll("#roster .stu")[i];
+  if (card) {
+    card.querySelector(".ava").className = "ava " + st.level;
+    const badge = card.querySelector(".lvl-badge");
+    if (badge) { badge.className = "lvl-badge " + st.level; badge.textContent = LEVEL_LABEL[st.level]; }
+  }
+  generate();
+}
+
+/* Điều hướng nhập điểm bằng bàn phím: Enter / ↓ sang bạn kế, ↑ về bạn trước. */
+function focusScore(i) {
+  const inps = document.querySelectorAll("#roster .score-inp");
+  if (inps[i]) { inps[i].focus(); inps[i].select(); return true; }
+  return false;
+}
+function scoreKey(e, i) {
+  if (e.key === "Enter" || e.key === "ArrowDown") {
+    e.preventDefault();
+    if (!focusScore(i + 1)) e.target.blur();
+  } else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    focusScore(i - 1);
+  }
+}
 /* ====== SINH NỘI DUNG ====== */
 function buildContent(topicsStr) {
   let parts = [];
@@ -677,6 +774,129 @@ function buildStudentBody(r, topicsStr) {
   return parts;
 }
 
+/* ====== MẪU CÂU KẾT QUẢ KIỂM TRA (chế độ Nhận xét + Điểm) ====== */
+/* {topics} = toàn bộ kiến thức; {weak} = 1-2 phần lấy ngẫu nhiên để nhắc điểm cần cải thiện */
+const EXAM = {
+  gioi: [ // >= 9
+    "Em nắm vững các kiến thức về {topics}, làm bài đúng và trình bày rõ ràng. Chỉ cần cẩn thận hơn ở vài chi tiết nhỏ.",
+    "Em sử dụng tốt {topics}, thao tác chính xác và ít mắc lỗi. Em giữ được cách làm bài này ở các buổi sau.",
+    "Em hiểu chắc nội dung bài kiểm tra và làm bài ổn định. Kết quả tốt, em duy trì như vậy.",
+    "Em vận dụng đúng {topics} vào bài làm, các bước rõ ràng. Chú ý thêm chi tiết nhỏ là bài sẽ hoàn chỉnh.",
+    "Em làm bài chắc, nắm tốt các phần đã học. Em tiếp tục giữ mức này.",
+    "Em hiểu rõ cách dùng {topics} và xử lý bài chính xác. Chỉ cần rà lại bài trước khi nộp để tránh lỗi nhỏ.",
+    "Em hoàn thành tốt yêu cầu, cách làm bài mạch lạc. Em cố gắng giữ sự cẩn thận này.",
+    "Em nắm bài tốt và làm đúng gần như toàn bộ yêu cầu. Em kiểm tra kỹ hơn để không mất điểm ở phần dễ.",
+    "Em làm tốt phần {topics}, bài gọn và đúng. Em giữ được kết quả này ở các bài tiếp theo.",
+    "Em làm bài đúng và nhanh, cho thấy hiểu bài chắc. Chỉ cần lưu ý vài lỗi trình bày nhỏ.",
+    "Em vận dụng linh hoạt các kiến thức đã học vào bài kiểm tra. Kết quả tốt, em duy trì.",
+    "Em hiểu bài chắc và ít nhầm lẫn. Em giữ thói quen rà lại bài để điểm cao ổn định.",
+    "Em nắm chắc {topics} và làm bài tự tin. Chú ý thêm các trường hợp đặc biệt để bài đầy đủ hơn.",
+    "Em xử lý bài chính xác, đáp ứng tốt yêu cầu. Em tiếp tục cố gắng ở các phần khó hơn."
+  ],
+  kha: [ // 8 - 8.9
+    "Em nắm khá chắc kiến thức và làm được phần lớn yêu cầu. Còn vài lỗi nhỏ ở {weak}, luyện thêm em sẽ tốt hơn.",
+    "Em hiểu nội dung chính và hoàn thành tốt bài kiểm tra. Cần luyện thêm ở {weak} để dùng chính xác hơn.",
+    "Em làm bài tốt, nắm được phần lớn {topics}. Chú ý thêm ở {weak} để bài hoàn chỉnh hơn.",
+    "Em vận dụng khá tốt kiến thức đã học. Cẩn thận hơn ở {weak} là điểm sẽ cao hơn.",
+    "Em làm đúng phần lớn yêu cầu. Chỉ cần khắc phục vài lỗi ở {weak} là em tiến bộ rõ.",
+    "Em hiểu bài và trình bày ổn. Em xem lại phần {weak} để nắm chắc hơn.",
+    "Em nắm được các ý chính và làm bài đạt yêu cầu. Luyện thêm {weak} để bài chính xác hơn.",
+    "Bài làm của em khá tốt, ít lỗi. Em chú ý phần {weak} để lần sau làm tốt hơn.",
+    "Em áp dụng đúng nhiều phần kiến thức. Còn đôi chỗ nhầm ở {weak}, em ôn lại là ổn.",
+    "Em làm chắc ở các phần cơ bản. Cần luyện thêm {weak} để xử lý nhanh và đúng hơn.",
+    "Em hiểu bài tốt và hoàn thành đúng hạn. Em lưu ý {weak} để tránh lỗi lặp lại.",
+    "Em nắm được phần lớn nội dung, kết quả khá tốt. Ôn thêm {weak} là em sẽ vững hơn.",
+    "Em làm bài đúng hướng, còn vài sai sót nhỏ ở {weak}. Luyện tập thêm là cải thiện được.",
+    "Em vận dụng được kiến thức vào bài kiểm tra. Chú ý thêm {weak} để đạt kết quả cao hơn."
+  ],
+  tb: [ // 6 - 7.9
+    "Em hiểu các kiến thức cơ bản và làm được phần lớn yêu cầu. Còn nhầm ở {weak}, em cần luyện tập thêm.",
+    "Em nắm được kiến thức cơ bản nhưng còn sai sót ở {weak}. Em ôn tập và thực hành thêm để nhớ lâu hơn.",
+    "Em hoàn thành các yêu cầu cơ bản và hiểu cách dùng {topics}. Cần luyện thêm để làm bài chính xác và tự tin hơn.",
+    "Em nắm nội dung cơ bản của bài, còn lúng túng ở {weak}. Em nên ôn lại và thực hành thêm.",
+    "Em làm được các phần cơ bản nhưng còn sai ở {weak}. Ôn bài đều sẽ giúp em cải thiện.",
+    "Em hiểu bài ở mức cơ bản, kết quả trung bình khá. Em cần luyện thêm {weak} để chắc hơn.",
+    "Em làm đúng các phần quen thuộc, còn vướng ở {weak}. Em dành thêm thời gian ôn phần này.",
+    "Em nắm được ý chính nhưng chưa vận dụng tốt {weak}. Luyện tập thêm là em sẽ tiến bộ.",
+    "Bài làm đạt mức cơ bản, em còn nhầm một số bước ở {weak}. Em ôn lại quy trình cho quen.",
+    "Em hiểu được phần lớn nội dung, song còn sai ở {weak}. Thực hành thêm ở nhà sẽ giúp em nhớ bài.",
+    "Em hoàn thành bài ở mức trung bình khá. Em cần củng cố {weak} để nâng kết quả.",
+    "Em làm được các câu cơ bản, còn lúng túng khi gặp {weak}. Em luyện thêm dạng bài này.",
+    "Em nắm bài chưa thật chắc, nhất là ở {weak}. Em ôn lại lý thuyết và làm thêm bài tập.",
+    "Em hiểu cơ bản và có cố gắng làm bài. Em cần luyện thêm {weak} để làm nhanh và đúng hơn."
+  ],
+  yeu: [ // < 6
+    "Em mới nắm được một phần kiến thức, còn nhiều sai sót ở {weak}. Em cần ôn lại bài kỹ và luyện tập thêm.",
+    "Bài làm cho thấy em chưa nắm chắc {topics}. Em cần dành thêm thời gian ôn tập và làm lại bài mẫu.",
+    "Em còn khó khăn khi vận dụng {weak}. Gia đình nhắc em ôn bài đều và luyện tập thêm ở nhà.",
+    "Kết quả cho thấy em cần cố gắng hơn, nhất là ở {weak}. Em ôn lại kiến thức nền và luyện tập thường xuyên.",
+    "Em nắm bài còn yếu, sai nhiều ở {weak}. Em nên học lại từ phần cơ bản và làm thêm bài tập.",
+    "Em chưa hoàn thành được phần lớn yêu cầu. Em cần ôn kỹ {weak} và hỏi lại thầy cô chỗ chưa hiểu.",
+    "Bài kiểm tra chưa đạt yêu cầu, em còn lúng túng ở {weak}. Em cần luyện tập nhiều hơn ở nhà.",
+    "Em cần củng cố lại kiến thức nền, nhất là {weak}. Gia đình nhắc em ôn bài mỗi ngày.",
+    "Em mới làm được các phần dễ, còn sai ở {weak}. Em ôn lại và làm lại bài từ mức cơ bản.",
+    "Kết quả chưa tốt do em chưa nắm chắc {weak}. Em dành thêm thời gian ôn tập để theo kịp lớp.",
+    "Em còn nhiều chỗ nhầm lẫn trong bài. Em nên ôn lại {weak} và luyện tập đều để cải thiện.",
+    "Em cần cố gắng nhiều hơn ở {weak}. Em hỏi lại thầy cô những phần chưa rõ và luyện thêm."
+  ]
+};
+
+function scoreToBand(x) { return x >= 9 ? "gioi" : x >= 8 ? "kha" : x >= 6 ? "tb" : "yeu"; }
+
+/* Túi bốc không lặp cho câu kiểm tra: mỗi bậc phát hết mẫu rồi mới lặp lại. */
+let _examBag, _examIdx;
+function resetExamBags() { _examBag = {}; _examIdx = {}; }
+function nextExamTmpl(band) {
+  const arr = EXAM[band];
+  if (!_examBag[band] || _examIdx[band] >= _examBag[band].length) {
+    _examBag[band] = shuffle(arr.map((_, i) => i));
+    _examIdx[band] = 0;
+  }
+  return arr[_examBag[band][_examIdx[band]++]];
+}
+
+function pickWeak(topicsList) {
+  if (!topicsList.length) return "một số nội dung đã học";
+  if (topicsList.length === 1) return topicsList[0];
+  const shuffled = shuffle(topicsList.slice());
+  const n = rnd() < 0.5 ? 1 : 2;
+  return fmtTopics(shuffled.slice(0, n));
+}
+
+function fillExam(t, topicsStr, weak) {
+  return t.replace(/{topics}/g, topicsStr || "các nội dung đã học").replace(/{weak}/g, weak);
+}
+
+function buildExam(topicsArr, topicsStr, para, BL) {
+  const s = curSubject();
+  resetExamBags();
+  const blocks = [];
+  blocks.push(para('<b>THÔNG BÁO KẾT QUẢ KIỂM TRA</b>'));
+  const noiDung = topicsStr ? (topicsStr + " trong " + s.name) : ("môn " + s.name);
+  const noiDungHtml = "<ul style='margin: 4px 0 0 0; padding-left: 20px;'><li style='margin-bottom: 4px;'>" +
+                      escapeHtml(noiDung) + ".</li></ul>";
+  blocks.push(para('<b>Nội dung kiểm tra:</b><b style="color:#f27806">' + noiDungHtml + '</b>'));
+  blocks.push(para('<b style="color:#15a85f">Điểm chi tiết:</b>'));
+
+  roster.forEach(r => {
+    const st = r.st;
+    const hasScore = st.score != null;
+    const scoreTxt = hasScore ? fmtScore(st.score) + "/10" : "";
+    const nameLine = hasScore
+      ? '<b>' + escapeHtml(r.name) + ' – <span style="color:#db342e">' + scoreTxt + '</span></b>'
+      : '<b>' + escapeHtml(r.name) + '</b>';
+    let body;
+    if (hasScore) {
+      const tmpl = nextExamTmpl(scoreToBand(st.score));
+      body = "Em đạt " + scoreTxt + " điểm trong bài kiểm tra. " + fillExam(tmpl, topicsStr, pickWeak(topicsArr));
+    } else {
+      body = "(chưa nhập điểm)";
+    }
+    blocks.push(para(nameLine + "<div>" + escapeHtml(body) + "</div>"));
+  });
+  return blocks.join(para(BL));
+}
+
 /* ====== TẠO TOÀN BỘ (in đậm tên + tiêu đề) ====== */
 function generate() {
   RNG = mulberry32((version * 2654435761) >>> 0 || 1);
@@ -687,30 +907,37 @@ function generate() {
 
   document.getElementById("count").textContent = roster.length ? `${roster.length} học sinh` : "";
 
+  // Dòng trống bằng ký tự Braille trống (U+2800): nhìn như khoảng trắng
+  // nhưng KHÔNG bị Zalo gộp mất → giữ được cách dòng kể cả khi dán chữ đậm.
+  const BL = "⠀";
+  const para = inner => "<div>" + inner + "</div>";
+
+  // Chế độ Nhận xét + Điểm: xuất form THÔNG BÁO KẾT QUẢ KIỂM TRA
+  if (scoreMode) {
+    document.getElementById("output").innerHTML = buildExam(topics, topicsStr, para, BL);
+    document.getElementById("copied").textContent = "";
+    return;
+  }
+
   const introRaw = document.getElementById("title").value + " xin nhận xét về buổi học vừa qua ạ:";
   const contentParts = buildContent(topicsStr);
   const general = buildGeneral();
   const students = roster.map(r => ({ name: r.name, bodyParts: buildStudentBody(r, topicsStr) }));
 
-  // Dòng trống bằng ký tự Braille trống (U+2800): nhìn như khoảng trắng
-  // nhưng KHÔNG bị Zalo gộp mất → giữ được cách dòng kể cả khi dán chữ đậm.
-  const BL = "⠀";
-
-  const para = inner => "<div>" + inner + "</div>";
   const blocks = [];
   blocks.push(para(escapeHtml(introRaw)));
-  
-  const contentHtml = "<ul style='margin: 4px 0 0 0; padding-left: 20px;'>" + 
-                      contentParts.map(p => "<li style='margin-bottom: 4px;'>" + escapeHtml(p) + "</li>").join("") + 
+
+  const contentHtml = "<ul style='margin: 4px 0 0 0; padding-left: 20px;'>" +
+                      contentParts.map(p => "<li style='margin-bottom: 4px;'>" + escapeHtml(p) + "</li>").join("") +
                       "</ul>";
   blocks.push(para('<b>Nội dung:</b><b style="color:#f27806">' + contentHtml + '</b>'));
-  
+
   if (general) blocks.push(para('<b style="color:#db342e">Nhận xét chung:</b> ' + escapeHtml(general)));
   blocks.push(para('<b style="color:#15a85f">Nhận xét cá nhân:</b>'));
-  
+
   students.forEach(st => {
-    const feedbackList = "<ul style='margin: 4px 0 0 0; padding-left: 20px;'>" + 
-                         st.bodyParts.map(p => "<li style='margin-bottom: 4px;'>" + escapeHtml(p) + "</li>").join("") + 
+    const feedbackList = "<ul style='margin: 4px 0 0 0; padding-left: 20px;'>" +
+                         st.bodyParts.map(p => "<li style='margin-bottom: 4px;'>" + escapeHtml(p) + "</li>").join("") +
                          "</ul>";
     blocks.push(para("<b>" + escapeHtml(st.name) + ":</b>" + feedbackList));
   });
@@ -752,6 +979,36 @@ function closeCopyGuide() { document.getElementById("copyGuideModal").classList.
 /* ====== KHỞI TẠO ====== */
 setDefaultTopics();
 syncRoster();
+</script>
+
+<!-- ====== GHI LOG IP TRUY CẬP VÀO FIRESTORE ======
+     Trình duyệt khách ghi thẳng vào Firestore, không cần server trung gian.
+     Mỗi (IP, ngày) chỉ 1 document nhờ đặt document id = "ngày_ip" -> tự chống trùng. -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAtsAuBa6X20MuzTLzWkEADnKPv6VosEYU",
+    authDomain: "coffee-9a1f8.firebaseapp.com",
+    projectId: "coffee-9a1f8",
+    storageBucket: "coffee-9a1f8.firebasestorage.app",
+    messagingSenderId: "2316025268",
+    appId: "1:2316025268:web:62100ecee836a6c450c6e1"
+  };
+
+  try {
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const r = await fetch("https://api.ipify.org?format=json");
+    const ip = (await r.json()).ip;
+    const now = new Date();
+    const date = now.getFullYear() + "-" +
+                 String(now.getMonth() + 1).padStart(2, "0") + "-" +
+                 String(now.getDate()).padStart(2, "0");
+    // id = "ngày_ip" => cùng IP trong 1 ngày chỉ tạo/ghi đè đúng 1 bản ghi
+    await setDoc(doc(db, "visits", date + "_" + ip), { ip, date, ts: serverTimestamp() });
+  } catch (e) { /* bỏ qua nếu lỗi mạng/quyền */ }
 </script>
 </body>
 </html>

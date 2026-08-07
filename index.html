@@ -10,9 +10,21 @@
   * { box-sizing: border-box; }
   :root {
     --pri: #4f7cff; --pri2: #7b5cff; --green:#27ae60; --orange:#f39c12; --pink:#eb3b6e; --purple:#8e44ad;
-    --ink:#1c2433; --muted:#7a8194; --line:#e9edf3; --bg:#eef1f7;
+    --ink:#1c2433; --muted:#7a8194; --line:#e9edf3; --bg:#eef1f7; --card:#fff; --soft:#fafbfe; --field:#fff;
+    --hover:#f2f5fb; --sec:#eef1f7; --sec-hover:#e3e8f1; --shadow:rgba(20,30,60,.06);
+    --focus:rgba(79,124,255,.15); --modal:rgba(20,30,60,.45); --score-bg:#fff7e8; --score-line:#f5d488; --score-ink:#7a5a12;
   }
-  body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: var(--bg); color: var(--ink); }
+  html[data-theme="dark"] {
+    --ink:#eef3ff; --muted:#aab4ca; --line:#344056; --bg:#111827; --card:#1b2433; --soft:#141c2a; --field:#101827;
+    --hover:#263247; --sec:#29354a; --sec-hover:#34425a; --shadow:rgba(0,0,0,.28);
+    --focus:rgba(111,143,255,.24); --modal:rgba(5,10,18,.72); --score-bg:#2b2415; --score-line:#7c5a1f; --score-ink:#f1d08a;
+  }
+  body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: var(--bg); color: var(--ink); transition: background .18s, color .18s; }
+  * { scrollbar-width: thin; scrollbar-color: var(--muted) var(--soft); }
+  *::-webkit-scrollbar { width: 10px; height: 10px; }
+  *::-webkit-scrollbar-track { background: var(--soft); }
+  *::-webkit-scrollbar-thumb { background: var(--muted); border: 2px solid var(--soft); border-radius: 999px; }
+  *::-webkit-scrollbar-thumb:hover { background: var(--pri); }
   .topbar {
     background: linear-gradient(120deg, var(--pri), var(--pri2));
     color: #fff; padding: 18px 22px; display: flex; align-items: center; gap: 12px;
@@ -24,56 +36,58 @@
   .wrap { max-width: 1160px; margin: 0 auto; padding: 18px; }
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
   @media (max-width: 920px) { .grid { grid-template-columns: 1fr; } }
-  .card { background: #fff; border-radius: 14px; padding: 18px; box-shadow: 0 2px 10px rgba(20,30,60,.06); margin-bottom: 18px; }
+  .theme-toggle { position: fixed; top: 14px; right: 14px; z-index: 90; min-width: 96px; border: 1.5px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 8px 12px; font-size: 12.5px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 18px var(--shadow); }
+  .theme-toggle:hover { background: var(--hover); }
+  .card { background: var(--card); border-radius: 14px; padding: 18px; box-shadow: 0 2px 10px var(--shadow); margin-bottom: 18px; }
   .card h2 { margin: 0 0 14px; font-size: 15px; color: var(--pri); display: flex; align-items: center; gap: 8px; }
   .card h2 .num { background: linear-gradient(120deg,var(--pri),var(--pri2)); color:#fff; width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:12px; }
-  label { display: block; font-size: 12.5px; font-weight: 600; margin: 12px 0 5px; color:#3a4254; }
+  label { display: block; font-size: 12.5px; font-weight: 600; margin: 12px 0 5px; color: var(--ink); }
   input[type=text], textarea, select {
     width: 100%; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 9px;
-    font-size: 14px; font-family: inherit; background: #fff; transition: border .15s, box-shadow .15s;
+    font-size: 14px; font-family: inherit; background: var(--field); color: var(--ink); transition: border .15s, box-shadow .15s;
   }
-  input[type=text]:focus, textarea:focus, select:focus { outline: none; border-color: var(--pri); box-shadow: 0 0 0 3px rgba(79,124,255,.15); }
+  input[type=text]:focus, textarea:focus, select:focus { outline: none; border-color: var(--pri); box-shadow: 0 0 0 3px var(--focus); }
   textarea { resize: vertical; line-height: 1.55; }
   .hint { font-size: 11.5px; color: var(--muted); font-weight: 400; }
   .btn { background: linear-gradient(120deg,var(--pri),var(--pri2)); color: #fff; border: none; padding: 11px 18px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(79,124,255,.3); transition: transform .1s, box-shadow .15s; }
   .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(79,124,255,.4); }
-  .btn.sec { background: #eef1f7; color: #3a4254; box-shadow: none; }
-  .btn.sec:hover { background: #e3e8f1; }
+  .btn.sec { background: var(--sec); color: var(--ink); box-shadow: none; }
+  .btn.sec:hover { background: var(--sec-hover); }
   .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
 
   /* ===== thẻ học sinh ===== */
   #roster { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
-  .stu { background:#fafbfe; border:1.5px solid var(--line); border-radius: 12px; padding: 12px 14px; transition: border .15s, box-shadow .15s; }
-  .stu:hover { border-color: #d4ddf0; box-shadow: 0 2px 8px rgba(20,30,60,.05); }
+  .stu { background:var(--soft); border:1.5px solid var(--line); border-radius: 12px; padding: 12px 14px; transition: border .15s, box-shadow .15s; }
+  .stu:hover { border-color: var(--pri); box-shadow: 0 2px 8px var(--shadow); }
   .stu .row1 { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .ava { width: 40px; height: 40px; border-radius: 50%; flex-shrink:0; display: flex; align-items: center; justify-content: center; color:#fff; font-weight: 700; font-size: 15px; box-shadow: inset 0 0 0 2px rgba(255,255,255,.4); }
   .ava.tot { background: var(--green); } .ava.kha { background: var(--orange); } .ava.can { background: var(--pink); }
   .nm { flex: 1; min-width: 110px; font-size: 14.5px; font-weight: 700; }
-  .seg { display: inline-flex; background:#fff; border: 1.5px solid var(--line); border-radius: 9px; overflow: hidden; }
+  .seg { display: inline-flex; background:var(--field); border: 1.5px solid var(--line); border-radius: 9px; overflow: hidden; }
   .seg button { background: transparent; color: var(--muted); border: none; padding: 7px 13px; font-size: 12.5px; font-weight: 600; cursor: pointer; border-right: 1px solid var(--line); transition: background .12s; }
   .seg button:last-child { border-right: none; }
-  .seg button:hover { background:#f2f5fb; }
+  .seg button:hover { background:var(--hover); }
   .seg button.a-tot { background: var(--green); color: #fff; }
   .seg button.a-kha { background: var(--orange); color: #fff; }
   .seg button.a-can { background: var(--pink); color: #fff; }
-  .mode { border: 1.5px solid var(--line); background: #fff; color: #5a6273; border-radius: 9px; padding: 7px 13px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: .12s; }
-  .mode:hover { background:#f2f5fb; }
+  .mode { border: 1.5px solid var(--line); background: var(--field); color: var(--ink); border-radius: 9px; padding: 7px 13px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: .12s; }
+  .mode:hover { background:var(--hover); }
   .mode.on { background: var(--purple); color: #fff; border-color: var(--purple); }
   .seg.mode-seg { margin-bottom: 12px; }
   .seg.mode-seg button.on { background: var(--pri); color: #fff; }
   .seg.mode-seg button.on span { color: #fff !important; }
-  .score-inp { width: 62px; flex-shrink: 0; padding: 6px 8px; font-size: 13.5px; font-weight: 700; text-align: center; border: 1.5px solid var(--line); border-radius: 8px; background:#fff; }
-  .score-inp:focus { outline: none; border-color: var(--pri); box-shadow: 0 0 0 3px rgba(79,124,255,.15); }
+  .score-inp { width: 62px; flex-shrink: 0; padding: 6px 8px; font-size: 13.5px; font-weight: 700; text-align: center; border: 1.5px solid var(--line); border-radius: 8px; background:var(--field); color: var(--ink); }
+  .score-inp:focus { outline: none; border-color: var(--pri); box-shadow: 0 0 0 3px var(--focus); }
   .score-inp::-webkit-outer-spin-button, .score-inp::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .lvl-badge { flex-shrink: 0; width: 96px; text-align: center; padding: 7px 0; border-radius: 9px; font-size: 12.5px; font-weight: 700; color: #fff; }
   .lvl-badge.tot { background: var(--green); }
   .lvl-badge.kha { background: var(--orange); }
   .lvl-badge.can { background: var(--pink); }
-  .empty { color: var(--muted); font-size: 13px; padding: 18px; text-align:center; background:#fafbfe; border:1.5px dashed var(--line); border-radius:12px; }
-  .score-note { margin-top: 10px; padding: 10px 13px; background: #fff7e8; border: 1.5px solid #f5d488; border-radius: 10px; font-size: 12.5px; color: #7a5a12; line-height: 1.5; }
+  .empty { color: var(--muted); font-size: 13px; padding: 18px; text-align:center; background:var(--soft); border:1.5px dashed var(--line); border-radius:12px; }
+  .score-note { margin-top: 10px; padding: 10px 13px; background: var(--score-bg); border: 1.5px solid var(--score-line); border-radius: 10px; font-size: 12.5px; color: var(--score-ink); line-height: 1.5; }
   .score-note b { color: #b26a00; }
 
-  #output { white-space: pre-wrap; font-size: 14px; line-height: 1.65; background: #fafbfe; border: 1.5px solid var(--line); border-radius: 11px; padding: 16px; min-height: 300px; cursor: text; }
+  #output { white-space: pre-wrap; font-size: 14px; line-height: 1.65; background: var(--soft); border: 1.5px solid var(--line); border-radius: 11px; padding: 16px; min-height: 300px; cursor: text; }
   .copied { color: var(--green); font-size: 13px; font-weight: 700; margin-left: 8px; }
   .count { font-size: 12px; color: var(--muted); font-weight: 500; margin-left: auto; }
   .legend-mini { font-size:11.5px; color:var(--muted); margin-top:8px; display:flex; gap:14px; flex-wrap:wrap; }
@@ -81,16 +95,16 @@
   .dot { width:10px; height:10px; border-radius:50%; display:inline-block; }
 
   /* ===== popup chọn kiến thức ===== */
-  #topics { cursor: pointer; background: #fff; }
-  .modal-overlay { position: fixed; inset: 0; background: rgba(20,30,60,.45); display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
+  #topics { cursor: pointer; background: var(--field); }
+  .modal-overlay { position: fixed; inset: 0; background: var(--modal); display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
   .modal-overlay.show { display: flex; }
-  .modal { background: #fff; border-radius: 14px; padding: 20px; width: min(460px, 94vw); max-height: 84vh; overflow: auto; box-shadow: 0 10px 40px rgba(0,0,0,.25); }
+  .modal { background: var(--card); border-radius: 14px; padding: 20px; width: min(460px, 94vw); max-height: 84vh; overflow: auto; box-shadow: 0 10px 40px rgba(0,0,0,.25); }
   .modal h3 { margin: 0 0 4px; font-size: 16px; color: var(--ink); }
   .modal .sub { font-size: 12.5px; color: var(--muted); margin-bottom: 14px; }
   .topic-item { display: flex; align-items: center; gap: 10px; padding: 9px 11px; border: 1.5px solid var(--line); border-radius: 9px; margin-bottom: 7px; cursor: pointer; font-size: 14px; user-select: none; }
-  .topic-item:hover { background: #f2f5fb; border-color: #d4ddf0; }
+  .topic-item:hover { background: var(--hover); border-color: var(--pri); }
   .topic-item input { width: 17px; height: 17px; accent-color: var(--pri); cursor: pointer; }
-  .topic-item.on { background: #eef4ff; border-color: var(--pri); }
+  .topic-item.on { background: var(--hover); border-color: var(--pri); }
   .modal-add { display: flex; gap: 8px; margin: 12px 0; }
   .modal-add input { flex: 1; }
   .modal-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 10px; }
@@ -98,6 +112,7 @@
 </style>
 </head>
 <body>
+<button id="themeToggle" class="theme-toggle" type="button" onclick="toggleTheme()" aria-label="Doi theme">Toi</button>
 <div class="wrap" style="padding-top:18px;">
   <div class="grid">
     <!-- TRÁI -->
@@ -190,6 +205,21 @@
 </div>
 
 <script>
+/* ====== THEME SANG / TOI ====== */
+function applyTheme(theme) {
+  const next = theme === "dark" ? "dark" : "light";
+  document.documentElement.dataset.theme = next;
+  localStorage.setItem("theme", next);
+  const btn = document.getElementById("themeToggle");
+  if (btn) btn.textContent = next === "dark" ? "Light" : "Dark";
+}
+
+function toggleTheme() {
+  applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+}
+
+applyTheme(localStorage.getItem("theme") || "light");
+
 /* ====== MÔN HỌC ====== */
 const SUBJECTS = {
   scratch:   { name:"Scratch", in:"Scratch", unit:"khối lệnh", product:"chương trình", topics:"Giao diện Scratch, Khối Chuyển động, Khối Hiển thị (Looks), Khối Âm thanh, Sự kiện (Events), Điều khiển (Control), Cảm biến (Sensing), Toán tử (Operators), Biến (Variables), Danh sách (List), Vòng lặp, Vòng lặp lồng nhau, Câu lệnh điều kiện, Điều kiện if-else, Tọa độ X-Y, Nhân bản (Clone), Vẽ bằng bút (Pen), Tạo nhân vật (Sprite), Trang phục (Costume), Phông nền (Backdrop), Truyền tin (Broadcast), Khối tùy chỉnh (My Blocks), Bộ đếm thời gian (Timer), Hỏi và trả lời (Ask & Answer), Hiệu ứng đồ họa (Graphic Effects), Thay đổi kích thước nhân vật, Phát hiện va chạm (chạm màu/chạm cạnh), Số ngẫu nhiên, Phép so sánh và logic, Xử lý chuỗi ký tự, Điều khiển bằng bàn phím, Điều khiển bằng chuột, Quản lý điểm số, Cộng dồn điểm & mạng, Mở rộng (Text to Speech / Translate / Music), Kể chuyện tương tác, Mô phỏng vật lý đơn giản, Biến toàn cục & cục bộ, Phối hợp nhiều nhân vật, Nhân vật đi theo chuột, Bắn đạn & mục tiêu, Trò chơi bắt vật rơi, Trò chơi né chướng ngại vật, Trò chơi mê cung, Trò chơi đố vui (Quiz), Chuyển cảnh nhiều phông, Âm thanh nền & hiệu ứng, Đếm ngược thời gian, Hệ thống màn chơi (Level), Lưu điểm cao, Hoạt hình, Làm game đơn giản" },
@@ -435,6 +465,53 @@ const LEVELS = {
   }
 };
 
+const BLOCKED_ENDINGS = new Set([
+  "Em tự kiểm tra lại bài sau khi làm xong.",
+  "Em làm thêm bài tập mở rộng ngoài giờ học.",
+  "Em giữ nhịp học này để tiến bộ đều."
+]);
+
+const EXTRA_ENDINGS = {
+  tot: [
+    "Em có thể thử thêm một yêu cầu khó hơn để rèn cách xử lý vấn đề.",
+    "Em nên ghi lại các lỗi đã sửa để lần sau làm nhanh hơn.",
+    "Em thử tự đặt thêm một ví dụ nhỏ để kiểm tra xem mình đã hiểu chắc chưa.",
+    "Em tiếp tục làm bài theo từng bước rõ ràng như hôm nay.",
+    "Em có thể thử giải cùng bài theo một cách khác để mở rộng tư duy.",
+    "Em xem lại phần ghi chú sau buổi học để giữ kiến thức ổn định.",
+    "Em nên tập giải thích lại cách làm của mình, vì đó là cách kiểm tra bài rất tốt.",
+    "Em có thể tự đặt mục tiêu nhỏ cho buổi sau để bài làm chắc hơn."
+  ],
+  kha: [
+    "Em ôn lại phần còn chậm trước khi làm bài mới.",
+    "Em nên làm lại một ví dụ đã học để thao tác quen hơn.",
+    "Em chú ý đọc kỹ yêu cầu trước khi bắt đầu làm bài.",
+    "Em rà soát lại các bước sau khi hoàn thành để tránh lỗi nhỏ.",
+    "Em cần luyện thêm một vài dạng bài tương tự để làm chắc tay hơn.",
+    "Em ghi lại những chỗ hay nhầm để buổi sau sửa nhanh hơn.",
+    "Em nên hỏi ngay khi vướng một bước, tránh để sai lỗi kéo dài.",
+    "Em tập trung hơn ở phần thực hành thì bài làm sẽ ổn định hơn.",
+    "Em xem lại bài cũ trong thời gian ngắn mỗi ngày để không quên các bước chính."
+  ],
+  can: [
+    "Em ôn lại phần cơ bản trước, sau đó mới làm tiếp bài khó hơn.",
+    "Em nên làm lại bài mẫu từ đầu để nắm rõ thứ tự các bước.",
+    "Em cần ghi chú ngắn các ý chính để dễ xem lại khi làm bài.",
+    "Em chú ý nghe phần hướng dẫn đầu bài để đỡ bị lỡ bước.",
+    "Em nên làm từng phần nhỏ, xong phần nào kiểm tra phần đó.",
+    "Em cần chủ động báo giáo viên khi chưa hiểu, để được hỗ trợ kịp thời.",
+    "Em luyện lại các thao tác cơ bản trước khi sang nội dung mới.",
+    "Em giữ vở ghi chú gọn hơn để khi quên có thể tra lại nhanh.",
+    "Em cần thêm thời gian luyện tập, nhưng nên bắt đầu từ các bước nhỏ và dễ kiểm tra."
+  ]
+};
+
+Object.keys(EXTRA_ENDINGS).forEach(level => {
+  LEVELS[level].end = LEVELS[level].end
+    .filter(line => !BLOCKED_ENDINGS.has(line))
+    .concat(EXTRA_ENDINGS[level]);
+});
+
 const ONLINE_NOTE = "Tuy nhiên, em thường tham gia học trực tuyến nên việc trao đổi và hỗ trợ trực tiếp còn hạn chế. Nếu có điều kiện học trực tiếp nhiều hơn, giáo viên sẽ hướng dẫn em chi tiết hơn.";
 
 /* ====== MẪU CÂU NHẬN XÉT CHUNG (chọn theo tỷ lệ Tốt/Khá/Trung Bình của lớp) ====== */
@@ -529,8 +606,23 @@ function fmtTopics(list) {
   return list.slice(0, -1).join(", ") + " và " + list[list.length - 1];
 }
 function curSubject() { return SUBJECTS[document.getElementById("subject").value]; }
+function hasPythonUiTopic(topicsStr) {
+  const plain = (topicsStr || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return /qt|designer|giao\s*dien|widget|label|button|lineedit|checkbox|radiobutton|combobox|spin box|slider|table widget|progress bar|menu|toolbar|layout|qss|signal|slot|messagebox|filedialog|tabwidget|treewidget|listwidget|ket noi ui|su kien nut|o nhap/.test(plain);
+  return /qt|designer|giao\s*diá»‡n|widget|label|button|lineedit|checkbox|radiobutton|combobox|spin box|slider|table widget|progress bar|menu|toolbar|layout|qss|signal|slot|messagebox|filedialog|tabwidget|treewidget|listwidget|káº¿t ná»‘i ui|sá»± kiá»‡n nÃºt|Ã´ nháº­p/i.test(topicsStr || "");
+}
+
 function fillVars(t, topicsStr) {
   const s = curSubject();
+  const purePython = document.getElementById("subject").value === "python" && !hasPythonUiTopic(topicsStr);
+  const subject = purePython ? "l\u1eadp tr\u00ecnh Python" : s.in;
+  const unit = purePython ? "c\u00e2u l\u1ec7nh v\u00e0 ki\u1ebfn th\u1ee9c Python" : s.unit;
+  const product = purePython ? "b\u00e0i t\u1eadp Python" : s.product;
+  const buildText = purePython ? "gi\u1ea3i quy\u1ebft b\u00e0i t\u1eadp Python" : "xay dung cac chuc nang co ban trong " + product;
+  if (purePython) {
+    return t.replace(/{topics}/g, topicsStr).replace(/{subject}/g, subject)
+            .replace(/{unit}/g, unit).replace(/{product}/g, product).replace(/{build}/g, buildText);
+  }
   const build = "xây dựng các chức năng cơ bản trong " + s.product;
   return t.replace(/{topics}/g, topicsStr).replace(/{subject}/g, s.in)
           .replace(/{unit}/g, s.unit).replace(/{product}/g, s.product).replace(/{build}/g, build);

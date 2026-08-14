@@ -89,6 +89,19 @@
 
   #output { white-space: pre-wrap; font-size: 14px; line-height: 1.65; background: var(--soft); border: 1.5px solid var(--line); border-radius: 11px; padding: 16px; min-height: 300px; cursor: text; }
   .copied { color: var(--green); font-size: 13px; font-weight: 700; margin-left: 8px; }
+  .student-copy-btn {
+    border: 1.5px solid var(--pri); background: rgba(79,124,255,.08); color: var(--pri);
+    border-radius: 9px; padding: 7px 11px; font-size: 12.5px; font-weight: 700; cursor: pointer;
+    transition: background .12s, transform .12s; margin-left: 8px;
+  }
+  .student-copy-btn:hover { background: rgba(79,124,255,.14); transform: translateY(-1px); }
+  .toast {
+    position: fixed; right: 18px; bottom: 18px; z-index: 200; min-width: 170px; max-width: min(90vw, 280px);
+    background: rgba(21, 31, 48, 0.96); color: #fff; border-radius: 10px; padding: 11px 14px;
+    font-size: 13px; font-weight: 700; box-shadow: 0 10px 22px rgba(0,0,0,.22); opacity: 0; pointer-events: none;
+    transform: translateY(12px); transition: opacity .18s ease, transform .18s ease;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
   .count { font-size: 12px; color: var(--muted); font-weight: 500; margin-left: auto; }
   .legend-mini { font-size:11.5px; color:var(--muted); margin-top:8px; display:flex; gap:14px; flex-wrap:wrap; }
   .legend-mini span { display:inline-flex; align-items:center; gap:5px; }
@@ -113,6 +126,7 @@
 </head>
 <body>
 <button id="themeToggle" class="theme-toggle" type="button" onclick="toggleTheme()" aria-label="Doi theme">Toi</button>
+<div id="toast" class="toast" aria-live="polite">Copy thành công</div>
 <div class="wrap" style="padding-top:18px;">
   <div class="grid">
     <!-- TRÁI -->
@@ -787,12 +801,57 @@ function renderRoster() {
         <div class="ava ${s.level}">${escapeHtml(initials(r.name))}</div>
         <span class="nm">${escapeHtml(r.name)}</span>
         ${control}
+        <button class="student-copy-btn" type="button" onclick="copyStudentReview(${i})">Copy</button>
       </div>
     </div>`;
   }).join("");
 }
 
 function escapeHtml(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => toast.classList.remove("show"), 2200);
+}
+
+function buildSingleStudentReviewText(index) {
+  const student = roster[index];
+  if (!student) return "";
+
+  const topics = document.getElementById("topics").value.split(",").map(x => x.trim()).filter(Boolean);
+  const topicsStr = fmtTopics(topics);
+  const lines = buildStudentBody(student, topicsStr);
+
+  return `${student.name}:\n${lines.map(line => `- ${line}`).join("\n")}`;
+}
+
+async function copyStudentReview(index) {
+  const text = buildSingleStudentReviewText(index);
+  if (!text) return;
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const input = document.createElement("textarea");
+      input.value = text;
+      input.setAttribute("readonly", "");
+      input.style.position = "fixed";
+      input.style.left = "-9999px";
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand("copy");
+      document.body.removeChild(input);
+    }
+    showToast("Copy thành công");
+  } catch (error) {
+    showToast("Copy thất bại");
+  }
+}
 
 function setLevel(i, lv) { roster[i].st.manual = true; roster[i].st.level = lv; renderRoster(); generate(); }
 

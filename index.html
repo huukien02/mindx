@@ -824,8 +824,19 @@ function buildSingleStudentReviewText(index) {
 
   const topics = document.getElementById("topics").value.split(",").map(x => x.trim()).filter(Boolean);
   const topicsStr = fmtTopics(topics);
-  const lines = buildStudentBody(student, topicsStr);
 
+  if (scoreMode) {
+    const st = student.st;
+    const normalized = st.score != null ? st.score : (st.level === "tot" ? 9.5 : st.level === "kha" ? 8 : 6);
+    const band = scoreToBand(normalized);
+    const weak = pickWeak(topics);
+    const template = pick(EXAM[band]);
+    const note = fillExam(template, topicsStr, weak);
+    const scoreText = st.score != null ? `${fmtScore(st.score)}/10` : "(chưa nhập điểm)";
+    return `${student.name} – ${scoreText}\n${note}`;
+  }
+
+  const lines = buildStudentBody(student, topicsStr);
   return `${student.name}:\n${lines.map(line => `- ${line}`).join("\n")}`;
 }
 

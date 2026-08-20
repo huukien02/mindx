@@ -73,7 +73,7 @@
   .mode { border: 1.5px solid var(--line); background: var(--field); color: var(--ink); border-radius: 9px; padding: 7px 13px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: .12s; }
   .mode:hover { background:var(--hover); }
   .mode.on { background: var(--purple); color: #fff; border-color: var(--purple); }
-  .seg.mode-seg { margin-bottom: 12px; }
+  .seg.mode-seg { margin-bottom: 12px; flex-wrap: wrap; max-width: 100%; }
   .seg.mode-seg button.on { background: var(--pri); color: #fff; }
   .seg.mode-seg button.on span { color: #fff !important; }
   .score-inp { width: 62px; flex-shrink: 0; padding: 6px 8px; font-size: 13.5px; font-weight: 700; text-align: center; border: 1.5px solid var(--line); border-radius: 8px; background:var(--field); color: var(--ink); }
@@ -155,11 +155,15 @@
       <div class="card">
         <h2><span class="num">2</span> Danh sách học sinh <span id="count" class="count"></span></h2>
         <div class="seg mode-seg">
-          <button id="modeReview" type="button" class="on" onclick="setScoreMode(false)">Chỉ nhận xét</button>
-          <button id="modeScore" type="button" onclick="setScoreMode(true)">Nhận xét + Điểm (<span style="font-size: 11.5px; font-weight: 600; color:rgb(250, 20, 89)"> Buổi 5 và 9</span> )</button>
+          <button id="modeReview" type="button" class="on" onclick="setMode('review')">Nhận xét</button>
+          <button id="modeScore" type="button" onclick="setMode('score')">Nhận xét + Điểm</button>
+          <button id="modeProject" type="button" onclick="setMode('project')">Ôn tập &amp; SPCK</button>
         </div>
         <div id="scoreNote" class="score-note" style="display:none;">
           ⚠️ <b>Chế độ này cần nhập điểm:</b> dán kèm điểm sau tên (vd <b>N. A. An&nbsp;&nbsp;9</b>), hoặc gõ điểm vào ô của từng bạn.
+        </div>
+        <div id="projectNote" class="score-note" style="display:none;">
+          💡 <b>Buổi ôn tập &amp; làm sản phẩm cá nhân:</b> nhận xét nói về phần ôn lại kiến thức đã học và cách mỗi bạn vận dụng kiến thức đó vào sản phẩm cá nhân (không nhắc tới tiến độ hay mức độ hoàn thành sản phẩm). Thầy cô vẫn chọn mức <b>Tốt / Khá / Trung bình</b> cho từng bạn.
         </div>
         <label>Dán danh sách tên <span class="hint" id="namesHint"> — Thầy cô vào LMS mục <span style="color:var(--pri); font-weight: 700">Điểm Danh</span> để copy nhé (Mỗi bạn 1 dòng)</span></label>
         <textarea id="names" rows="4" oninput="syncRoster()" placeholder="N. P. N. Lâm&#10;H. A. Đức&#10;Đ. C. Nam&#10;..."></textarea>
@@ -318,12 +322,12 @@ const LEVELS = {
       "Em tiếp thu lý thuyết khá nhanh và hiểu đúng trọng tâm của {topics}.",
       "Em học lý thuyết nghiêm túc, nắm được bản chất của {topics}.",
       "Em giữ được sự tập trung trong giờ học, nhờ vậy nắm khá liền mạch các kiến thức về {topics}.",
-      "Với thái độ nghiêm túc, em hiểu được nội dung chính của bài, nhất là phần {topics}.",
+      "Em học nghiêm túc và hiểu được nội dung chính của bài, nhất là phần {topics}.",
       "Em có phát biểu trong giờ và cho thấy mình hiểu các khái niệm liên quan đến {topics}.",
       "Em ghi nhớ nhanh và hiểu đúng các ý chính của {topics}.",
       "Em theo sát các bước hướng dẫn nên nắm được mục đích của {topics}.",
-      "Em tiếp nhận kiến thức mới khá thoải mái, cho thấy tâm thế học tập tốt với {topics}.",
-      "Em có tinh thần tự giác, vào bài với thái độ nghiêm túc và sớm hiểu được {topics}.",
+      "Em tiếp nhận nội dung mới khá nhẹ nhàng, không bị đuối khi học {topics}.",
+      "Em vào bài nhanh và sớm hiểu được {topics}.",
       "Em phân tích được các khái niệm về {topics} ở mức khá tốt.",
       "Em tóm lược thông tin tốt, qua vài ví dụ đã nắm được ý chính của {topics}.",
       "Em ghi chép và theo dõi bài đầy đủ, qua đó hiểu được {topics}.",
@@ -350,13 +354,13 @@ const LEVELS = {
     end: [
       "Em duy trì cách học này ở các buổi sau.",
       "Em có thể làm thêm các bài khó hơn để nâng kỹ năng.",
-      "Phụ huynh cho em thực hành thêm ở nhà.",
+      "Gia đình cho em thực hành thêm ở nhà.",
       "Em luyện tập thêm thì sẽ làm được các bài phức tạp hơn.",
       "Em giữ nhịp học này để tiến bộ đều.",
       "Em làm thêm bài tập mở rộng ngoài giờ học.",
       "Em chuẩn bị bài trước cho buổi tới.",
       "Em tự kiểm tra lại bài sau khi làm xong.",
-      "Phụ huynh tạo điều kiện để em thử thêm sản phẩm của riêng mình.",
+      "Gia đình cho em thử làm thêm sản phẩm của riêng mình.",
       "Em ôn lại nội dung buổi học để nhớ lâu hơn.",
       "Buổi học đạt yêu cầu, em giữ cách làm bài cẩn thận này.",
       "Em làm lại bài ở nhà để thao tác nhanh hơn."
@@ -368,16 +372,16 @@ const LEVELS = {
       "Em chú ý lắng nghe giảng bài, qua đó hiểu được ý chính của {topics}.",
       "Em theo sát tiến độ chung của lớp và làm quen được với các kiến thức như {topics}.",
       "Nội dung có phần mới mẻ, nhưng em vẫn tập trung và tiếp thu được các ý chính của {topics}.",
-      "Em có tinh thần cầu thị, hiểu bài và làm theo được các bước hướng dẫn.",
+      "Em hiểu bài và làm theo được các bước hướng dẫn.",
       "Em ghi chép và theo dõi bài đầy đủ, từ đó nắm được bức tranh chung về {topics}.",
       "Em nhận diện được các khái niệm về {topics} ở mức cơ bản.",
       "Em lắng nghe hướng dẫn khá cẩn thận, nắm được các ý trọng tâm về {topics}.",
-      "Có đôi chỗ cần giáo viên nhắc lại, nhưng nhìn chung em hiểu đúng tinh thần của bài học về {topics}.",
+      "Có đôi chỗ cần giáo viên nhắc lại, nhưng nhìn chung em hiểu đúng nội dung bài học về {topics}.",
       "Em tham gia học với thái độ tích cực, theo kịp các kiến thức nền tảng của buổi học.",
       "Ban đầu hơi bỡ ngỡ, nhưng em nhanh chóng tập trung lại và nắm được {topics}.",
       "Em cố gắng hiểu bài, lắng nghe các khái niệm xoay quanh {topics}.",
       "Em theo dõi phần hướng dẫn khá sát, từ đó hiểu được cách hoạt động cơ bản của {topics}.",
-      "Lý thuyết hơi khô khan, nhưng em vẫn nhẫn nại và tiếp thu được các ý chính của {topics}.",
+      "Phần lý thuyết khá dài, em vẫn theo hết và nắm được các ý chính của {topics}.",
       "Em tập trung vào những phần kiến thức trọng tâm về {topics}.",
       "Em ít phát biểu nhưng vẫn theo dõi bài và hiểu được {topics}.",
       "Em có nỗ lực tìm hiểu các khái niệm mới như {topics}.",
@@ -426,17 +430,17 @@ const LEVELS = {
       "Nội dung hôm nay khá thử thách; em làm quen được với những ý chính nhưng cần thời gian để nhớ sâu.",
       "Em có lắng nghe, nhưng kiến thức về {topics} khá nhiều nên việc tiếp thu còn hơi chậm.",
       "Em chú ý vào bài và làm theo hướng dẫn ở những phần nền tảng.",
-      "Bài có nhiều chi tiết mới về {topics}, em vẫn kiên nhẫn ghi nhận kiến thức.",
+      "Bài có nhiều chi tiết mới về {topics}, em cố gắng ghi chép theo.",
       "Em có tham gia lớp, đôi lúc sự tập trung còn bị gián đoạn khi sang phần {topics}.",
       "Em nắm được một số từ khóa về {topics} nhưng chưa hiểu thật sâu.",
       "Em làm quen với {topics} hơi chậm, cần giáo viên nhắc lại nhiều lần.",
       "Em có cố gắng nghe giảng, dù khái niệm về {topics} vẫn còn khá mới với em.",
-      "Em cho thấy sự cố gắng khi tiếp cận phần {topics}.",
+      "Em có cố gắng khi học phần {topics}.",
       "Bài có nhiều khái niệm trừu tượng, em nắm được một vài từ khóa về {topics}.",
       "Lý thuyết khá nặng, nhưng em vẫn cố gắng ghi chép về {topics}.",
       "Em tham gia lớp đầy đủ và cố gắng lắng nghe, việc hiểu sâu {topics} cần thêm thời gian ôn tập.",
       "Em có theo dõi bài, nhưng phần kiến thức về {topics} cần em tập trung hơn nữa.",
-      "Em bước đầu nắm được tầm quan trọng của {topics}, dù chưa nhớ hết ngay tại lớp.",
+      "Em biết {topics} dùng để làm gì, dù chưa nhớ hết cách dùng.",
       "Em có tham gia các hoạt động chung, phần {topics} mới dừng ở mức nhận diện.",
       "Phần lý thuyết về {topics} cần được củng cố lại sau buổi học."
     ],
@@ -444,7 +448,7 @@ const LEVELS = {
       "Vào phần thực hành, em cần giáo viên hỗ trợ nhiều hơn để kết nối các {unit} khi {build}.",
       "Còn lúng túng với các thao tác mới nên tiến độ làm bài của em chậm hơn mặt bằng chung.",
       "Em đôi khi mất tập trung trong giờ thực hành nên bỏ sót một vài bước quan trọng.",
-      "Em cần chủ động hơn: thay vì chờ gợi ý, hãy tự thử các thao tác trước.",
+      "Em cần chủ động hơn, tự thử thao tác trước thay vì chờ gợi ý.",
       "Em làm được các phần dễ, nhưng cần làm lại nhiều lần để hiểu rõ công cụ.",
       "Em còn ngập ngừng, phải đối chiếu bài mẫu nhiều lần mới làm được bước tiếp theo.",
       "Khi gặp lỗi, em hay trông chờ giáo viên thay vì tự tìm hiểu nguyên nhân.",
@@ -461,19 +465,19 @@ const LEVELS = {
       "Em có cố gắng hoàn thiện bài làm vào cuối giờ dù thao tác chưa trơn tru."
     ],
     end: [
-      "Phụ huynh nhắc em ôn bài ở nhà để theo kịp chương trình.",
+      "Gia đình nhắc em ôn bài ở nhà để theo kịp chương trình.",
       "Em cần tập trung hơn trong các buổi tới.",
       "Em luyện tập thêm mỗi ngày để bớt lúng túng.",
       "Em dành thêm thời gian ôn bài để nắm kiến thức chắc hơn.",
       "Em hỏi ngay khi chưa hiểu để được giải đáp.",
-      "Phụ huynh tạo không gian yên tĩnh để em ôn lại bài sau giờ học.",
+      "Gia đình sắp xếp cho em chỗ học yên tĩnh ở nhà.",
       "Em cần tập thói quen tự ôn ở nhà.",
       "Em thực hành đều hơn để khắc phục các chỗ còn yếu.",
       "Em nói ra chỗ chưa hiểu để giáo viên giảng lại.",
-      "Phụ huynh trao đổi thêm với giáo viên về việc học của em.",
+      "Gia đình trao đổi thêm với giáo viên về việc học của em.",
       "Em xem trước bài mới và ôn lại bài cũ để theo kịp lớp.",
       "Em luyện tập đều mỗi ngày để tiến bộ rõ hơn.",
-      "Phụ huynh nhắc em học đều để tránh hổng kiến thức nền.",
+      "Gia đình nhắc em học đều để tránh hổng kiến thức nền.",
       "Em làm lại các bài đã hướng dẫn cho quen thao tác."
     ]
   }
@@ -493,7 +497,7 @@ const EXTRA_ENDINGS = {
     "Em tiếp tục làm bài theo từng bước rõ ràng như hôm nay.",
     "Em có thể thử giải cùng bài theo một cách khác để mở rộng tư duy.",
     "Em xem lại phần ghi chú sau buổi học để giữ kiến thức ổn định.",
-    "Em nên tập giải thích lại cách làm của mình, vì đó là cách kiểm tra bài rất tốt.",
+    "Em thử giải thích lại cách làm của mình cho người khác nghe.",
     "Em có thể tự đặt mục tiêu nhỏ cho buổi sau để bài làm chắc hơn."
   ],
   kha: [
@@ -564,17 +568,294 @@ const GENERAL = {
     "Các bạn chịu khó theo dõi bài giảng, tuy nhiên do phần kiến thức khá nhiều nên cần thực hành thêm để thao tác quen tay.",
     "Lớp đang trong quá trình tiếp cận nội dung mới, các bạn cần kiên nhẫn luyện tập đều đặn để tự tin hơn khi làm bài.",
     "Đây là phần nội dung tương đối nhiều chi tiết, các bạn cần dành thêm thời gian tự thực hành để hiểu sâu hơn.",
-    "Các bạn cần thêm thời gian để quen với các khái niệm mới, tinh thần học tập nhìn chung vẫn đáng khích lệ."
+    "Các bạn cần thêm thời gian để quen với các khái niệm mới, nhìn chung lớp vẫn theo được bài."
   ],
   end: [
     "Các bạn ôn lại bài ở nhà để nắm kiến thức chắc hơn.",
-    "Phụ huynh nhắc các em xem lại bài và thực hành thêm ở nhà.",
+    "Gia đình nhắc các em xem lại bài và thực hành thêm ở nhà.",
     "Giáo viên sẽ theo sát quá trình làm bài để hỗ trợ các bạn.",
     "Các bạn chuẩn bị bài cho buổi học tiếp theo.",
     "Các bạn làm bài tập đầy đủ để củng cố kiến thức.",
-    "Phụ huynh cho các em ôn lại nội dung buổi học ở nhà.",
+    "Gia đình cho các em ôn lại nội dung buổi học ở nhà.",
     "Các bạn hỏi ngay phần nào chưa rõ để học hiệu quả hơn."
   ]
+};
+
+/* ====== CHẾ ĐỘ "ÔN TẬP VÀ LÀM SẢN PHẨM CÁ NHÂN" ======
+   Cùng cấu trúc với CONTENT / GENERAL / LEVELS nhưng câu chữ xoay quanh
+   việc ôn lại kiến thức đã học rồi vận dụng vào sản phẩm cá nhân của mỗi bạn. */
+const PROJECT_CONTENT = {
+  open: [
+    "Buổi học là buổi ôn tập, hệ thống lại các {unit} đã học trong {subject}: {topics}.",
+    "Học viên được ôn lại và củng cố các {unit} quan trọng trong {subject} gồm {topics}.",
+    "Nội dung buổi học là ôn tập tổng hợp các {unit} trong {subject}: {topics}.",
+    "Buổi học dành để nhắc lại và luyện tập các {unit} đã học trong {subject}, cụ thể là {topics}.",
+    "Giáo viên cùng học viên hệ thống lại các {unit} đã học trong {subject}: {topics}.",
+    "Trước khi bắt tay vào sản phẩm cá nhân, học viên được ôn lại các {unit} trong {subject} gồm {topics}.",
+    "Buổi học ôn tập lại những {unit} trọng tâm trong {subject} như {topics}.",
+    "Học viên nhắc lại kiến thức cũ và luyện tập các {unit} trong {subject}: {topics}.",
+    "Mở đầu buổi học, cả lớp cùng nhau ôn lại các {unit} đã học trong {subject}, trong đó có {topics}.",
+    "Buổi ôn tập giúp học viên nhìn lại một cách có hệ thống các {unit} trong {subject}: {topics}."
+  ],
+  // các phần sau không nhắc lại {topics} để tránh lặp danh sách kiến thức
+  mid: [
+    "Sau phần ôn tập, mỗi học viên vận dụng những kiến thức vừa nhắc lại vào {product} của riêng mình.",
+    "Học viên tự chọn ý tưởng và tìm cách dùng các {unit} đã học để thể hiện ý tưởng đó.",
+    "Trọng tâm của phần thực hành là cách chọn và kết hợp {unit} sao cho phù hợp với sản phẩm cá nhân.",
+    "Giáo viên hướng dẫn các em cách nhìn một yêu cầu trong sản phẩm rồi quyết định dùng kiến thức nào để xử lý.",
+    "Mỗi em áp dụng kiến thức theo cách riêng, tùy vào ý tưởng sản phẩm mà mình chọn.",
+    "Học viên được khuyến khích tự đặt câu hỏi: phần này nên dùng {unit} nào và dùng như thế nào.",
+    "Các em thực hành cách chuyển từ ý tưởng sang các bước cụ thể bằng những {unit} đã học.",
+    "Giáo viên theo sát từng em để góp ý về cách vận dụng kiến thức vào sản phẩm cá nhân.",
+    "Học viên vừa làm vừa thử nghiệm để hiểu rõ hơn cách mỗi {unit} hoạt động trong sản phẩm của mình.",
+    "Qua sản phẩm cá nhân, các em tự kiểm chứng xem mình đã hiểu và dùng đúng các {unit} hay chưa."
+  ],
+  skill: [
+    "Việc tự làm sản phẩm giúp các em rèn khả năng lên ý tưởng và tự quyết định cách thực hiện.",
+    "Qua sản phẩm cá nhân, học viên phát triển tư duy sáng tạo và kỹ năng tự giải quyết vấn đề.",
+    "Các em học được cách chia một ý tưởng lớn thành từng phần nhỏ để xử lý bằng kiến thức đã học.",
+    "Buổi học rèn cho học viên tính kiên trì: gặp lỗi thì bình tĩnh tìm nguyên nhân và sửa lại.",
+    "Học viên được khuyến khích thể hiện dấu ấn riêng thay vì làm theo một khuôn mẫu có sẵn.",
+    "Việc tự quyết định cách làm giúp các em tự tin và chủ động hơn khi dùng kiến thức.",
+    "Các em cũng rèn thói quen kiểm tra lại từng phần mình vừa làm.",
+    "Qua đó, học viên hiểu rằng cùng một kiến thức có thể dùng theo nhiều cách khác nhau.",
+    "Buổi học còn giúp các em mạnh dạn giải thích lại cách làm của mình.",
+    "Việc tự áp dụng kiến thức vào sản phẩm giúp các em nhớ bài lâu hơn nhiều so với chỉ làm theo mẫu."
+  ],
+  end: [
+    "Qua sản phẩm cá nhân, học viên thấy rõ mình đã vận dụng được những {unit} nào và còn thiếu ở đâu.",
+    "Sản phẩm cá nhân là dịp để các em nhìn lại toàn bộ kiến thức đã học và cách dùng chúng.",
+    "Buổi ôn tập giúp học viên củng cố kiến thức cũ và biết cách đưa chúng vào bài làm của mình.",
+    "Nhờ tự áp dụng vào sản phẩm, học viên dùng thành thạo hơn các {unit} đã học.",
+    "Các em hiểu thêm rằng mỗi {unit} đều có vai trò riêng khi ghép vào một {product} cụ thể.",
+    "Giáo viên đã xem và góp ý trực tiếp cho cách làm của từng bạn ngay tại lớp.",
+    "Với nền tảng ôn tập hôm nay, các em tự tin hơn khi vận dụng kiến thức vào những {product} khác.",
+    "Buổi học giúp các em kết nối lý thuyết vừa ôn với việc dùng thật trong {product} của mình.",
+    "Sau buổi học, học viên hình dung rõ hơn con đường từ một ý tưởng đến việc chọn {unit} phù hợp.",
+    "Các nội dung ôn tập hôm nay là nền để các em tiếp tục vận dụng ở những buổi sau."
+  ]
+};
+
+const PROJECT_GENERAL = {
+  excellent: [
+    "Nhìn chung, các bạn nhớ bài chắc và vận dụng tốt kiến thức đã học vào sản phẩm của riêng mình.",
+    "Đa số các bạn biết chọn đúng kiến thức cần dùng cho ý tưởng của mình.",
+    "Các bạn ôn tập nghiêm túc và áp dụng kiến thức vào sản phẩm cá nhân rất linh hoạt.",
+    "Phần lớn các bạn tự tin sử dụng những gì đã học mà không cần hướng dẫn nhiều.",
+    "Lớp cho thấy nền kiến thức vững khi tự đưa các nội dung đã ôn vào sản phẩm cá nhân."
+  ],
+  good: [
+    "Nhìn chung, các bạn nhớ được nội dung đã học và biết cách đưa vào sản phẩm của mình.",
+    "Đa số các bạn vận dụng được các kiến thức cơ bản vào sản phẩm cá nhân.",
+    "Các bạn theo sát phần ôn tập và bước đầu áp dụng được kiến thức vào ý tưởng riêng.",
+    "Phần lớn các bạn chọn được kiến thức phù hợp cho sản phẩm, một vài chỗ còn cần gợi ý.",
+    "Lớp giữ được không khí làm việc nghiêm túc trong suốt giờ thực hành."
+  ],
+  mixed: [
+    "Các bạn đều có cố gắng. Một số bạn vận dụng kiến thức rất linh hoạt, số khác còn cần gợi ý thêm.",
+    "Khả năng áp dụng kiến thức vào sản phẩm giữa các bạn có sự khác nhau, tùy vào việc nhớ bài cũ nhiều hay ít.",
+    "Phần lớn các bạn biết dùng kiến thức đã ôn, một vài bạn còn lúng túng khi chọn cách làm.",
+    "Nhìn chung lớp ôn tập ổn, tuy nhiên một số bạn cần hướng dẫn thêm khi tự áp dụng vào sản phẩm.",
+    "Có bạn tự vận dụng rất tốt, có bạn cần nhắc lại kiến thức, nhưng tất cả đều giữ được tinh thần làm việc."
+  ],
+  needsWork: [
+    "Các bạn đều cố gắng, tuy nhiên kiến thức cũ còn quên nhiều nên việc vận dụng vào sản phẩm còn khó.",
+    "Phần lớn các bạn mới dùng được những kiến thức cơ bản; các bạn cần ôn lại bài đều hơn ở nhà.",
+    "Buổi học giúp các bạn nhìn ra những phần mình còn hổng để tập trung ôn thêm.",
+    "Các bạn cần thêm thời gian ôn tập để có thể tự áp dụng kiến thức vào sản phẩm.",
+    "Các bạn nên luyện tập đều hơn ở nhà để nhớ bài lâu."
+  ],
+  end: [
+    "Các bạn ôn lại những phần còn quên để buổi sau vận dụng tốt hơn.",
+    "Gia đình nhắc các em xem lại bài và thực hành thêm ở nhà.",
+    "Giáo viên sẽ tiếp tục hỗ trợ các bạn ở những phần còn vướng.",
+    "Các bạn mạnh dạn hỏi khi chưa biết nên dùng kiến thức nào.",
+    "Các bạn thử áp dụng lại kiến thức vào một ý tưởng khác để nhớ lâu hơn.",
+    "Các bạn ôn bài đều để dùng kiến thức thành thạo hơn."
+  ]
+};
+
+const PROJECT_LEVELS = {
+  tot: {
+    open: [
+      "Ở phần ôn tập, em nhớ tốt kiến thức cũ và trả lời đúng hầu hết câu hỏi về {topics}.",
+      "Em hệ thống lại kiến thức nhanh, nắm chắc phần {topics} đã học.",
+      "Em tham gia ôn tập tích cực, nhắc lại được đầy đủ các ý chính về {topics}.",
+      "Em nhớ bài rất tốt, gần như không cần giáo viên nhắc lại phần {topics}.",
+      "Trong phần ôn tập, em chủ động phát biểu và giải thích lại được {topics} cho các bạn.",
+      "Em cho thấy kiến thức nền vững, sử dụng thành thạo {topics} khi ôn tập.",
+      "Em ôn bài nghiêm túc và kết nối được các kiến thức về {topics} với nhau.",
+      "Em nắm chắc {topics} nên vào phần làm sản phẩm rất nhanh.",
+      "Em nhắc lại chính xác cách dùng của {topics} khi được hỏi.",
+      "Phần ôn tập diễn ra thuận lợi với em, các kiến thức về {topics} em đều nhớ rõ.",
+      "Em ghi nhớ tốt và biết chọn đúng kiến thức trong {topics} để dùng cho sản phẩm của mình.",
+      "Em tổng hợp lại kiến thức về {topics} một cách gọn gàng và đầy đủ.",
+      "Em trả lời nhanh các câu hỏi ôn tập, không cần xem lại ghi chú.",
+      "Kiến thức cũ về {topics} em vẫn dùng được ngay khi cần.",
+      "Em phân biệt rõ từng phần trong {topics} khi ôn lại.",
+      "Em nhớ cả những chi tiết nhỏ của {topics} mà nhiều bạn đã quên.",
+      "Phần ôn tập với em khá nhẹ, em nắm lại bài chỉ sau một lượt.",
+      "Em bổ sung thêm ví dụ khi cả lớp ôn tới phần {topics}."
+    ],
+    mid: [
+      "Sang phần sản phẩm cá nhân, em biết ngay cần dùng kiến thức nào cho ý tưởng của mình.",
+      "Em chọn và kết hợp các {unit} rất hợp lý với ý tưởng sản phẩm của em.",
+      "Em vận dụng linh hoạt các {unit} vừa ôn vào sản phẩm của riêng mình.",
+      "Em giải thích được vì sao mình dùng {unit} này thay vì cách khác.",
+      "Em áp dụng kiến thức một cách chủ động, hầu như không cần giáo viên gợi ý khi {build}.",
+      "Em biết biến ý tưởng của mình thành các bước cụ thể bằng những {unit} đã học.",
+      "Gặp chỗ khó, em tự nghĩ ra cách dùng kiến thức cũ để xử lý.",
+      "Em còn thử thêm những cách dùng {unit} ngoài phần đã được hướng dẫn.",
+      "Em kiểm tra lại từng phần mình làm để chắc chắn kiến thức được dùng đúng.",
+      "Em dùng được cả những kiến thức từ các buổi trước chứ không chỉ phần vừa ôn.",
+      "Cách em sắp xếp các {unit} trong sản phẩm rất rõ ràng và dễ hiểu.",
+      "Em còn giải thích lại cho bạn bên cạnh cách áp dụng kiến thức vào bài.",
+      "Em dùng đúng kiến thức cho từng yêu cầu, không làm thừa bước.",
+      "Em chọn được cách làm đơn giản nhất trong số các cách đã học.",
+      "Em ghép được nhiều phần kiến thức khác nhau trong cùng một sản phẩm.",
+      "Cần một chức năng mới, em tự suy ra cách làm từ kiến thức cũ.",
+      "Em dùng {unit} đúng mục đích chứ không làm theo thói quen.",
+      "Em thử vài cách rồi chọn cách hợp với ý tưởng của mình nhất."
+    ],
+    end: [
+      "Em thử áp dụng thêm những kiến thức khó hơn vào sản phẩm của mình.",
+      "Em có thể thử một cách làm khác cho cùng ý tưởng.",
+      "Gia đình cho em thực hành thêm ở nhà.",
+      "Em giữ cách làm việc chủ động này ở các buổi sau.",
+      "Em thử giải thích lại cách làm của mình cho cả lớp.",
+      "Em ghi lại những cách dùng hay để lần sau áp dụng nhanh hơn.",
+      "Em duy trì thói quen tính trước cách làm như hôm nay.",
+      "Em thử một ý tưởng mới ở buổi sau để dùng được nhiều kiến thức hơn.",
+      "Em ôn lại kiến thức đều để giữ mức này.",
+      "Em ghi lại các lỗi đã gặp và cách sửa để lần sau xử lý nhanh hơn.",
+      "Em thử một ý tưởng cần nhiều kiến thức hơn ở buổi sau.",
+      "Em tự đặt thêm yêu cầu khó cho sản phẩm của mình.",
+      "Em thử làm lại cùng ý tưởng bằng cách khác để so sánh.",
+      "Em xem trước nội dung buổi sau để dùng được kiến thức mới.",
+      "Em ôn đều để dùng kiến thức nhanh hơn.",
+      "Em có thể nhận thêm yêu cầu nâng cao ở buổi tới."
+    ]
+  },
+  kha: {
+    open: [
+      "Ở phần ôn tập, em nhớ được các ý chính về {topics}, một vài chỗ cần giáo viên gợi ý thêm.",
+      "Em tham gia ôn tập nghiêm túc và nhắc lại được phần lớn kiến thức về {topics}.",
+      "Em nắm được các nội dung cơ bản của {topics}, còn vài chi tiết em chưa nhớ hết.",
+      "Em theo kịp phần ôn tập, hiểu lại được cách dùng của {topics}.",
+      "Em ôn bài khá tốt, sau khi được nhắc thì nhớ lại nhanh các kiến thức về {topics}.",
+      "Em ít phát biểu nhưng vẫn theo dõi phần ôn tập và nắm được {topics}.",
+      "Em nhớ được ý chính của bài cũ, phần {topics} cần xem lại thêm một chút.",
+      "Em có ôn bài trước ở nhà nên bắt nhịp phần ôn tập khá dễ dàng.",
+      "Em nhận ra được kiến thức nào cần dùng, dù đôi lúc còn lẫn giữa các phần của {topics}.",
+      "Em hệ thống lại được kiến thức về {topics} ở mức khá.",
+      "Em chú ý nghe phần ôn tập và ghi chép lại những chỗ mình chưa nhớ.",
+      "Em nhắc lại được các cách làm quen thuộc, phần mở rộng của {topics} còn hơi mờ.",
+      "Em nhớ lại được cách làm sau khi xem lại ví dụ.",
+      "Em nắm được phần lớn {topics}, còn lẫn ở một hai chỗ.",
+      "Em trả lời được các câu hỏi ôn tập ở mức cơ bản.",
+      "Em cần nhắc một chút ở đầu mỗi phần, sau đó nhớ lại khá nhanh.",
+      "Em ôn lại {topics} đủ để dùng cho bài của mình.",
+      "Em theo được phần ôn tập, riêng các phần học lâu rồi thì đã quên bớt."
+    ],
+    mid: [
+      "Sang phần sản phẩm, em biết dùng các kiến thức cơ bản vào ý tưởng của mình.",
+      "Em áp dụng được những {unit} quen thuộc, phần mới thì cần giáo viên gợi ý thêm.",
+      "Em chọn được kiến thức phù hợp cho sản phẩm, đôi lúc còn phân vân giữa vài cách.",
+      "Em dùng được các {unit} vừa ôn vào sản phẩm của mình, thao tác chưa nhanh nhưng chắc.",
+      "Em mất một lúc để nghĩ xem nên dùng kiến thức nào, sau đó làm khá tốt.",
+      "Gặp chỗ vướng, em chịu khó thử lại và hỏi khi thật sự cần.",
+      "Em áp dụng tốt phần kiến thức cơ bản, phần nâng cao thì cần thêm hướng dẫn.",
+      "Em làm theo đúng cách đã học và biết đối chiếu lại bài mẫu khi cần.",
+      "Em làm đến đâu kiểm tra đến đó nên ít khi dùng nhầm kiến thức.",
+      "Ý tưởng của em rõ ràng, cách vận dụng kiến thức còn có thể gọn hơn.",
+      "Em tự xử lý được phần lớn yêu cầu bằng kiến thức đã học, chỉ hỏi khi thật sự vướng.",
+      "Em có tiến bộ khi tự chọn được {unit} cần dùng mà không chờ nhắc.",
+      "Em dùng đúng kiến thức cho các yêu cầu quen thuộc.",
+      "Em cần xem lại ví dụ mẫu trước khi áp dụng vào bài của mình.",
+      "Em biết mình cần dùng phần nào, chỉ chưa chắc ở cách dùng.",
+      "Em áp dụng được kiến thức nhưng cách làm còn hơi vòng.",
+      "Em hỏi đúng chỗ mình vướng nên xử lý được các phần khó.",
+      "Em dùng lại được cách làm đã học ở buổi trước khi cần."
+    ],
+    end: [
+      "Em thử áp dụng lại kiến thức vào một ý tưởng khác ở nhà.",
+      "Em luyện thêm để dùng các kiến thức này nhanh và chắc hơn.",
+      "Em ôn lại phần còn quên để buổi sau vận dụng chủ động hơn.",
+      "Gia đình nhắc em thực hành thêm ở nhà.",
+      "Em cứ thử ý tưởng của mình, sai thì sửa lại.",
+      "Em nên nghĩ trước sẽ dùng kiến thức nào rồi mới bắt tay vào làm.",
+      "Em hỏi ngay khi chưa biết nên dùng phần kiến thức nào.",
+      "Em xem lại các bài cũ để nhớ chắc hơn cách dùng của từng phần.",
+      "Luyện thêm một chút là em vận dụng kiến thức linh hoạt hơn.",
+      "Em giữ cách làm bài nghiêm túc như hôm nay.",
+      "Em làm thêm một hai bài dạng tương tự để quen tay.",
+      "Em xem lại phần hay nhầm trước mỗi buổi học.",
+      "Em tự hỏi 'phần này dùng kiến thức gì' trước khi làm.",
+      "Em ghi lại cách làm của những chỗ hay quên.",
+      "Em luyện đều thì sẽ dùng kiến thức chắc hơn.",
+      "Em thử tự làm trước rồi mới hỏi khi thật sự bí."
+    ]
+  },
+  can: {
+    open: [
+      "Ở phần ôn tập, em còn quên khá nhiều kiến thức về {topics}, cần giáo viên nhắc lại.",
+      "Em có theo dõi phần ôn tập nhưng mới nhớ được một vài ý của {topics}.",
+      "Em cần được hướng dẫn lại từ đầu ở phần {topics}.",
+      "Kiến thức cũ về {topics} em nhớ chưa chắc nên phần ôn tập còn khó với em.",
+      "Em cố gắng ôn bài, tuy nhiên {topics} vẫn còn khá mới với em.",
+      "Em nhận ra được tên các phần đã học nhưng chưa nhớ cách dùng {topics}.",
+      "Em cần ôn lại nhiều lần mới nhớ được các bước của {topics}.",
+      "Em tham gia ôn tập nhưng sự tập trung còn bị gián đoạn.",
+      "Phần {topics} em mới dừng ở mức nghe hiểu, chưa tự nhắc lại được.",
+      "Em quên khá nhiều thao tác đã học nên phần ôn tập hơi vất vả.",
+      "Em cần xem lại bài cũ ở nhà vì kiến thức về {topics} còn hổng.",
+      "Em có cố gắng nhớ lại bài, giáo viên đã hướng dẫn thêm phần {topics} cho em.",
+      "Em cần xem lại ghi chú mới nhớ được nội dung đã học.",
+      "Em còn lẫn giữa các phần trong {topics}.",
+      "Em nhớ được ý chung nhưng chưa nhớ cách làm cụ thể.",
+      "Phần ôn tập em theo chưa kịp, cần giáo viên nhắc lại từng ý.",
+      "Em mới nhớ lại được những phần đơn giản của {topics}.",
+      "Em cần ôn thêm ở nhà vì kiến thức cũ đã quên khá nhiều."
+    ],
+    mid: [
+      "Sang phần sản phẩm, em còn lúng túng khi chọn kiến thức để dùng cho ý tưởng của mình.",
+      "Em cần giáo viên hướng dẫn từng bước mới áp dụng được các kiến thức cơ bản.",
+      "Em nhớ được tên các phần đã học nhưng chưa biết dùng vào sản phẩm thế nào.",
+      "Em thao tác còn chậm và hay nhầm giữa các {unit} khi {build}.",
+      "Em hay quên cách dùng nên phải hỏi lại nhiều lần.",
+      "Gặp lỗi em dễ dừng lại, cần giáo viên nhắc mới thử tiếp.",
+      "Em áp dụng được các phần dễ, những kiến thức khó hơn thì cần hỗ trợ.",
+      "Em chưa chủ động thử nghiệm mà thường chờ hướng dẫn.",
+      "Ý tưởng của em còn đơn giản nên mới dùng đến một vài kiến thức đã học.",
+      "Em cần tập trung hơn trong giờ thực hành để nhớ cách dùng kiến thức.",
+      "Cuối giờ em đã dùng được một số kiến thức cơ bản vào bài của mình.",
+      "Em cần luyện lại các thao tác nền trước khi tự áp dụng vào sản phẩm riêng.",
+      "Em chưa biết bắt đầu từ kiến thức nào nên cần giáo viên gợi ý.",
+      "Em làm theo được khi có mẫu, tự làm thì còn khó.",
+      "Em dùng nhầm kiến thức ở một vài chỗ và cần được sửa lại.",
+      "Em nhớ thao tác nhưng chưa hiểu vì sao lại làm như vậy.",
+      "Em cần nhắc lại từng bước mới áp dụng được vào bài của mình.",
+      "Em mới dùng được một hai phần kiến thức đơn giản."
+    ],
+    end: [
+      "Gia đình nhắc em ôn lại bài cũ để theo kịp lớp.",
+      "Em làm lại các bài mẫu đã học để nhớ cách dùng.",
+      "Em dành thêm thời gian thực hành ở nhà.",
+      "Em cần tập trung hơn trong các buổi tới.",
+      "Em hỏi ngay khi chưa hiểu để không bị hổng kiến thức.",
+      "Gia đình kèm em luyện lại các thao tác cơ bản ở nhà.",
+      "Em nên bắt đầu từ ý tưởng đơn giản với kiến thức mình đã chắc.",
+      "Em ôn lại từng phần nhỏ, chắc phần nào thì thử dùng phần đó.",
+      "Em nhờ giáo viên hướng dẫn lại phần chưa biết dùng.",
+      "Em luyện tập đều mỗi ngày để tiến bộ hơn.",
+      "Em xem lại ghi chép sau mỗi buổi học.",
+      "Em học chắc từng phần nhỏ trước khi ghép lại.",
+      "Gia đình kèm em ôn bài mỗi ngày.",
+      "Em làm lại bài cũ cho quen thao tác.",
+      "Em nói ra chỗ chưa hiểu để được giảng lại.",
+      "Em cần ôn đều hơn để không quên bài."
+    ]
+  }
 };
 
 /* ====== RNG có hạt giống ====== */
@@ -598,19 +879,22 @@ function shuffle(a) {
   return a;
 }
 
-/* ====== TÚI TỔ HỢP ====== */
+/* ====== TÚI BỐC CÂU ======
+   Mỗi vị trí câu (mở đầu / giữa / kết) có túi riêng: phát hết mẫu trong túi rồi mới
+   xáo lại. Nhờ vậy cả lớp (kể cả 15 bạn cùng một mức) không ai trùng câu với ai. */
 let _bags, _idx;
 function resetBags() { _bags = {}; _idx = {}; }
-function nextCombo(level) {
-  const L = LEVELS[level];
-  if (!_bags[level] || _idx[level] >= _bags[level].length) {
-    const c = [];
-    for (let o = 0; o < L.open.length; o++)
-      for (let m = 0; m < L.mid.length; m++)
-        for (let e = 0; e < L.end.length; e++) c.push({ o, m, e });
-    _bags[level] = shuffle(c); _idx[level] = 0;
+function nextSlot(key, n) {
+  if (!_bags[key] || _idx[key] >= _bags[key].length) {
+    _bags[key] = shuffle(Array.from({ length: n }, (_, i) => i));
+    _idx[key] = 0;
   }
-  return _bags[level][_idx[level]++];
+  return _bags[key][_idx[key]++];
+}
+function nextCombo(level, bank, tag) {
+  const L = (bank || LEVELS)[level];
+  const k = (tag || "L") + ":" + level + ":";
+  return { o: nextSlot(k + "o", L.open.length), m: nextSlot(k + "m", L.mid.length), e: nextSlot(k + "e", L.end.length) };
 }
 
 /* ====== TIỆN ÍCH ====== */
@@ -720,7 +1004,10 @@ function closeTopicsModal() {
 /* ====== DANH SÁCH LỚP ====== */
 const stateMap = {};
 let roster = [];
+/* 3 chế độ: "review" = chỉ nhận xét · "score" = nhận xét + điểm · "project" = ôn tập & làm sản phẩm cá nhân */
+let mode = "review";
 let scoreMode = false;
+let projectMode = false;
 
 /* Thang 10: ≥8 Tốt · 6–7.9 Khá · <6 Trung bình */
 const LEVEL_LABEL = { tot: "Tốt", kha: "Khá", can: "Trung bình" };
@@ -740,20 +1027,27 @@ function parseLine(raw) {
   return { name: line, score: null };
 }
 
-function setScoreMode(on) {
-  scoreMode = on;
-  document.getElementById("modeReview").classList.toggle("on", !on);
-  document.getElementById("modeScore").classList.toggle("on", on);
-  document.getElementById("scoreNote").style.display = on ? "block" : "none";
-  document.getElementById("names").placeholder = on
+function setMode(m) {
+  mode = (m === "score" || m === "project") ? m : "review";
+  scoreMode = mode === "score";
+  projectMode = mode === "project";
+  document.getElementById("modeReview").classList.toggle("on", mode === "review");
+  document.getElementById("modeScore").classList.toggle("on", scoreMode);
+  document.getElementById("modeProject").classList.toggle("on", projectMode);
+  document.getElementById("scoreNote").style.display = scoreMode ? "block" : "none";
+  document.getElementById("projectNote").style.display = projectMode ? "block" : "none";
+  document.getElementById("names").placeholder = scoreMode
     ? "N. P. N. Lâm  8.5\nH. A. Đức  9\nĐ. C. Nam  6.5\n..."
     : "N. P. N. Lâm\nH. A. Đức\nĐ. C. Nam\n...";
-  document.getElementById("namesHint").innerHTML = on
+  document.getElementById("namesHint").innerHTML = scoreMode
     ? ' — dán kèm điểm sẵn, hoặc dán tên rồi gõ điểm + <b>Enter</b> để sang bạn kế tiếp'
     : ' — Thầy cô vào LMS mục <span style="color:var(--pri); font-weight: 700">Điểm Danh</span> để copy nhé (Mỗi bạn 1 dòng)';
   syncRoster();
-  if (on) setTimeout(() => focusScore(0), 0);
+  if (scoreMode) setTimeout(() => focusScore(0), 0);
 }
+
+/* giữ lại tên hàm cũ cho tương thích */
+function setScoreMode(on) { setMode(on ? "score" : "review"); }
 
 function syncRoster() {
   const lines = document.getElementById("names").value.split("\n").map(s => s.trim()).filter(Boolean);
@@ -827,16 +1121,18 @@ function buildSingleStudentReviewText(index) {
 
   if (scoreMode) {
     const st = student.st;
-    const normalized = st.score != null ? st.score : (st.level === "tot" ? 9.5 : st.level === "kha" ? 8 : 6);
-    const band = scoreToBand(normalized);
-    const weak = pickWeak(topics);
-    const template = pick(EXAM[band]);
-    const note = fillExam(template, topicsStr, weak);
     const scoreText = st.score != null ? `${fmtScore(st.score)}/10` : "(chưa nhập điểm)";
+    // Dùng lại đúng nhận xét đang hiển thị để bản copy khớp với khung kết quả chung.
+    const note = st.examText || (st.score != null
+      ? buildExamBody(scoreToBand(st.score), topics, topicsStr, scoreText)
+      : "(chưa nhập điểm)");
     return `${student.name} – ${scoreText}\n${note}`;
   }
 
-  const lines = buildStudentBody(student, topicsStr);
+  const tp = studentTopics(topics, topicsStr);
+  const lines = projectMode
+    ? buildStudentBody(student, tp, PROJECT_LEVELS, "P")
+    : buildStudentBody(student, tp);
   return `${student.name}:\n${lines.map(line => `- ${line}`).join("\n")}`;
 }
 
@@ -898,16 +1194,17 @@ function scoreKey(e, i) {
   }
 }
 /* ====== SINH NỘI DUNG ====== */
-function buildContent(topicsStr) {
+function buildContent(topicsStr, bank) {
+  const C = bank || CONTENT;
   let parts = [];
-  parts.push(fillVars(pick(CONTENT.open), topicsStr));
-  parts.push(fillVars(pick(CONTENT.mid), topicsStr));
-  parts.push(fillVars(pick(CONTENT.skill), topicsStr));
-  parts.push(fillVars(pick(CONTENT.end), topicsStr));
+  parts.push(fillVars(pick(C.open), topicsStr));
+  parts.push(fillVars(pick(C.mid), topicsStr));
+  parts.push(fillVars(pick(C.skill), topicsStr));
+  parts.push(fillVars(pick(C.end), topicsStr));
   return parts;
 }
 
-function buildGeneral() {
+function buildGeneral(bank) {
   const total = roster.length;
   if (!total) return "";
   let tot = 0, kha = 0, can = 0;
@@ -923,13 +1220,29 @@ function buildGeneral() {
   else if (rGood >= 0.7) cat = "good";        // Tốt + Khá chiếm phần lớn
   else cat = "mixed";                          // lớp phân hóa
 
-  return pick(GENERAL[cat]) + " " + pick(GENERAL.end);
+  const G = bank || GENERAL;
+  return pick(G[cat]) + " " + pick(G.end);
 }
 
-function buildStudentBody(r, topicsStr) {
+/* Phần "Nội dung" đầu bản tin đã liệt kê đủ kiến thức, nên mỗi nhận xét cá nhân
+   chỉ nhắc 1–2 phần (bốc theo túi để rải đều cả lớp) — tránh 15 bạn cùng chép
+   lại một danh sách dài giống hệt nhau. */
+function studentTopics(topicsArr, topicsStr) {
+  if (!topicsArr || topicsArr.length < 3) return topicsStr;
+  const n = topicsArr.length;
+  const i = nextSlot("T:a", n);
+  if (rnd() < 0.45) {
+    const j = nextSlot("T:b", n);
+    if (j !== i) return fmtTopics([topicsArr[i], topicsArr[j]]);
+  }
+  return topicsArr[i];
+}
+
+function buildStudentBody(r, topicsStr, bank, tag) {
   const s = r.st;
-  const L = LEVELS[s.level];
-  const c = nextCombo(s.level);
+  const B = bank || LEVELS;
+  const L = B[s.level];
+  const c = nextCombo(s.level, B, tag);
   let parts = [fillVars(L.open[c.o], topicsStr)];
   parts.push(fillVars(L.mid[c.m], topicsStr));
   const e = L.end[c.e]; if (e) parts.push(e);
@@ -937,96 +1250,275 @@ function buildStudentBody(r, topicsStr) {
 }
 
 /* ====== MẪU CÂU KẾT QUẢ KIỂM TRA (chế độ Nhận xét + Điểm) ====== */
-/* {topics} = toàn bộ kiến thức; {weak} = 1-2 phần lấy ngẫu nhiên để nhắc điểm cần cải thiện */
+/* Mỗi bậc điểm gồm 3 phần ghép lại thành nhận xét dài:
+   open = đánh giá chung, mid = bám vào nội dung học, end = định hướng/lời dặn.
+   {topics} = toàn bộ kiến thức; {strong} = phần em làm tốt; {weak} = phần cần cải thiện. */
 const EXAM = {
-  gioi: [ // >= 9
-    "Em nắm vững các kiến thức về {topics}, làm bài đúng và trình bày rõ ràng. Chỉ cần cẩn thận hơn ở vài chi tiết nhỏ.",
-    "Em sử dụng tốt {topics}, thao tác chính xác và ít mắc lỗi. Em giữ được cách làm bài này ở các buổi sau.",
-    "Em hiểu chắc nội dung bài kiểm tra và làm bài ổn định. Kết quả tốt, em duy trì như vậy.",
-    "Em vận dụng đúng {topics} vào bài làm, các bước rõ ràng. Chú ý thêm chi tiết nhỏ là bài sẽ hoàn chỉnh.",
-    "Em làm bài chắc, nắm tốt các phần đã học. Em tiếp tục giữ mức này.",
-    "Em hiểu rõ cách dùng {topics} và xử lý bài chính xác. Chỉ cần rà lại bài trước khi nộp để tránh lỗi nhỏ.",
-    "Em hoàn thành tốt yêu cầu, cách làm bài mạch lạc. Em cố gắng giữ sự cẩn thận này.",
-    "Em nắm bài tốt và làm đúng gần như toàn bộ yêu cầu. Em kiểm tra kỹ hơn để không mất điểm ở phần dễ.",
-    "Em làm tốt phần {topics}, bài gọn và đúng. Em giữ được kết quả này ở các bài tiếp theo.",
-    "Em làm bài đúng và nhanh, cho thấy hiểu bài chắc. Chỉ cần lưu ý vài lỗi trình bày nhỏ.",
-    "Em vận dụng linh hoạt các kiến thức đã học vào bài kiểm tra. Kết quả tốt, em duy trì.",
-    "Em hiểu bài chắc và ít nhầm lẫn. Em giữ thói quen rà lại bài để điểm cao ổn định.",
-    "Em nắm chắc {topics} và làm bài tự tin. Chú ý thêm các trường hợp đặc biệt để bài đầy đủ hơn.",
-    "Em xử lý bài chính xác, đáp ứng tốt yêu cầu. Em tiếp tục cố gắng ở các phần khó hơn."
-  ],
-  kha: [ // 8 - 8.9
-    "Em nắm khá chắc kiến thức và làm được phần lớn yêu cầu. Còn vài lỗi nhỏ ở {weak}, luyện thêm em sẽ tốt hơn.",
-    "Em hiểu nội dung chính và hoàn thành tốt bài kiểm tra. Cần luyện thêm ở {weak} để dùng chính xác hơn.",
-    "Em làm bài tốt, nắm được phần lớn {topics}. Chú ý thêm ở {weak} để bài hoàn chỉnh hơn.",
-    "Em vận dụng khá tốt kiến thức đã học. Cẩn thận hơn ở {weak} là điểm sẽ cao hơn.",
-    "Em làm đúng phần lớn yêu cầu. Chỉ cần khắc phục vài lỗi ở {weak} là em tiến bộ rõ.",
-    "Em hiểu bài và trình bày ổn. Em xem lại phần {weak} để nắm chắc hơn.",
-    "Em nắm được các ý chính và làm bài đạt yêu cầu. Luyện thêm {weak} để bài chính xác hơn.",
-    "Bài làm của em khá tốt, ít lỗi. Em chú ý phần {weak} để lần sau làm tốt hơn.",
-    "Em áp dụng đúng nhiều phần kiến thức. Còn đôi chỗ nhầm ở {weak}, em ôn lại là ổn.",
-    "Em làm chắc ở các phần cơ bản. Cần luyện thêm {weak} để xử lý nhanh và đúng hơn.",
-    "Em hiểu bài tốt và hoàn thành đúng hạn. Em lưu ý {weak} để tránh lỗi lặp lại.",
-    "Em nắm được phần lớn nội dung, kết quả khá tốt. Ôn thêm {weak} là em sẽ vững hơn.",
-    "Em làm bài đúng hướng, còn vài sai sót nhỏ ở {weak}. Luyện tập thêm là cải thiện được.",
-    "Em vận dụng được kiến thức vào bài kiểm tra. Chú ý thêm {weak} để đạt kết quả cao hơn."
-  ],
-  tb: [ // 6 - 7.9
-    "Em hiểu các kiến thức cơ bản và làm được phần lớn yêu cầu. Còn nhầm ở {weak}, em cần luyện tập thêm.",
-    "Em nắm được kiến thức cơ bản nhưng còn sai sót ở {weak}. Em ôn tập và thực hành thêm để nhớ lâu hơn.",
-    "Em hoàn thành các yêu cầu cơ bản và hiểu cách dùng {topics}. Cần luyện thêm để làm bài chính xác và tự tin hơn.",
-    "Em nắm nội dung cơ bản của bài, còn lúng túng ở {weak}. Em nên ôn lại và thực hành thêm.",
-    "Em làm được các phần cơ bản nhưng còn sai ở {weak}. Ôn bài đều sẽ giúp em cải thiện.",
-    "Em hiểu bài ở mức cơ bản, kết quả trung bình khá. Em cần luyện thêm {weak} để chắc hơn.",
-    "Em làm đúng các phần quen thuộc, còn vướng ở {weak}. Em dành thêm thời gian ôn phần này.",
-    "Em nắm được ý chính nhưng chưa vận dụng tốt {weak}. Luyện tập thêm là em sẽ tiến bộ.",
-    "Bài làm đạt mức cơ bản, em còn nhầm một số bước ở {weak}. Em ôn lại quy trình cho quen.",
-    "Em hiểu được phần lớn nội dung, song còn sai ở {weak}. Thực hành thêm ở nhà sẽ giúp em nhớ bài.",
-    "Em hoàn thành bài ở mức trung bình khá. Em cần củng cố {weak} để nâng kết quả.",
-    "Em làm được các câu cơ bản, còn lúng túng khi gặp {weak}. Em luyện thêm dạng bài này.",
-    "Em nắm bài chưa thật chắc, nhất là ở {weak}. Em ôn lại lý thuyết và làm thêm bài tập.",
-    "Em hiểu cơ bản và có cố gắng làm bài. Em cần luyện thêm {weak} để làm nhanh và đúng hơn."
-  ],
-  yeu: [ // < 6
-    "Em mới nắm được một phần kiến thức, còn nhiều sai sót ở {weak}. Em cần ôn lại bài kỹ và luyện tập thêm.",
-    "Bài làm cho thấy em chưa nắm chắc {topics}. Em cần dành thêm thời gian ôn tập và làm lại bài mẫu.",
-    "Em còn khó khăn khi vận dụng {weak}. Gia đình nhắc em ôn bài đều và luyện tập thêm ở nhà.",
-    "Kết quả cho thấy em cần cố gắng hơn, nhất là ở {weak}. Em ôn lại kiến thức nền và luyện tập thường xuyên.",
-    "Em nắm bài còn yếu, sai nhiều ở {weak}. Em nên học lại từ phần cơ bản và làm thêm bài tập.",
-    "Em chưa hoàn thành được phần lớn yêu cầu. Em cần ôn kỹ {weak} và hỏi lại thầy cô chỗ chưa hiểu.",
-    "Bài kiểm tra chưa đạt yêu cầu, em còn lúng túng ở {weak}. Em cần luyện tập nhiều hơn ở nhà.",
-    "Em cần củng cố lại kiến thức nền, nhất là {weak}. Gia đình nhắc em ôn bài mỗi ngày.",
-    "Em mới làm được các phần dễ, còn sai ở {weak}. Em ôn lại và làm lại bài từ mức cơ bản.",
-    "Kết quả chưa tốt do em chưa nắm chắc {weak}. Em dành thêm thời gian ôn tập để theo kịp lớp.",
-    "Em còn nhiều chỗ nhầm lẫn trong bài. Em nên ôn lại {weak} và luyện tập đều để cải thiện.",
-    "Em cần cố gắng nhiều hơn ở {weak}. Em hỏi lại thầy cô những phần chưa rõ và luyện thêm."
-  ]
+  gioi: { open: [ // >= 9
+    "Em nắm vững các kiến thức về {topics}, làm bài đúng và trình bày rõ ràng.",
+    "Em sử dụng tốt {topics}, thao tác chính xác và ít mắc lỗi.",
+    "Em hiểu chắc nội dung bài kiểm tra và làm bài ổn định.",
+    "Em vận dụng đúng {topics} vào bài làm, các bước rõ ràng.",
+    "Em làm bài chắc, nắm tốt các phần đã học.",
+    "Em hiểu rõ cách dùng {topics} và xử lý bài chính xác.",
+    "Em đáp ứng tốt yêu cầu của đề, cách làm bài mạch lạc.",
+    "Em nắm bài tốt và làm đúng gần như toàn bộ yêu cầu.",
+    "Em làm tốt phần {topics}, bài gọn và đúng.",
+    "Em làm bài đúng và nhanh, cho thấy hiểu bài chắc.",
+    "Em vận dụng linh hoạt các kiến thức đã học vào bài kiểm tra.",
+    "Em hiểu bài chắc và ít nhầm lẫn.",
+    "Em nắm chắc {topics} và làm bài tự tin.",
+    "Em xử lý bài chính xác, đáp ứng tốt yêu cầu của đề.",
+    "Em làm bài chắc tay, các câu đều đúng và trình bày dễ theo dõi.",
+    "Em hiểu đúng yêu cầu của đề và xử lý gọn, ít phải sửa lại.",
+    "Bài của em đúng gần hết, cho thấy em nắm kiến thức ở mức tốt.",
+    "Em làm chủ được nội dung kiểm tra, kết quả đúng với sức học của em."
+  ], mid: [
+    "Cụ thể ở phần {strong}, em xác định đúng yêu cầu ngay từ đầu và chọn được cách làm gọn.",
+    "Em hiểu bản chất của {strong} chứ không làm theo mẫu, nên đề đổi cách hỏi em vẫn xử lý được.",
+    "Bài làm cho thấy em nắm rất chắc {strong} và biết kết hợp với các nội dung đã học trước đó.",
+    "Phần {strong} em làm chuẩn, các bước rõ ràng và đúng thứ tự.",
+    "Em vận dụng {strong} khá linh hoạt, có chỗ em còn tìm được cách làm ngắn hơn yêu cầu.",
+    "Câu khó liên quan đến {strong} em vẫn hoàn thành trọn vẹn, cho thấy em có ôn bài kỹ ở nhà.",
+    "Em nhớ chính xác cách dùng {strong} và áp dụng đúng tình huống mà đề bài đưa ra.",
+    "Ở nội dung {strong}, em không chỉ làm đúng mà còn giải thích được vì sao làm như vậy.",
+    "Em xử lý tốt cả phần {strong} lẫn các câu vận dụng, tốc độ làm bài nhanh và ổn định.",
+    "Phần {strong} em làm gần như trọn vẹn, chỉ còn vài chi tiết trình bày có thể gọn hơn.",
+    "Em dùng đúng kiến thức cho từng câu, không nhầm giữa các phần.",
+    "Ở các câu vận dụng của {strong}, em vẫn giữ được cách làm chính xác.",
+    "Em trả lời đủ ý, phần {strong} còn nêu được cả những trường hợp phụ.",
+    "Em làm bài theo thứ tự hợp lý nên hầu như không sót câu.",
+    "Phần {strong} em xử lý nhanh, dành được thời gian rà lại các câu còn lại.",
+    "Em phân biệt rõ các trường hợp trong {strong} — chỗ này nhiều bạn hay nhầm.",
+    "Em nhớ chi tiết cách làm của {strong} dù đã học từ mấy buổi trước.",
+    "Em chọn cách làm ngắn cho phần {strong} thay vì làm dài dòng."
+  ], end: [
+    "Riêng {weak}, em nên xem thêm vài trường hợp đặc biệt cho đủ.",
+    "Buổi tới em thử sức với bài nâng cao của phần {weak}.",
+    "Em có thể tự nghĩ thêm bài luyện ở phần {weak} rồi tự kiểm tra kết quả.",
+    "Với nền hiện tại em theo được các nội dung khó hơn sắp tới, chỉ cần giữ thói quen rà lại bài.",
+    "Em học đều và mở rộng thêm ở phần {weak} là kiến thức sẽ vững.",
+    "Gia đình cho em làm thêm bài nâng cao ở nhà.",
+    "Em có thể hướng dẫn lại các bạn phần {strong}, cách này giúp em nhớ bài lâu hơn.",
+    "Buổi tới em sẽ nhận thêm bài mở rộng ở phần {weak}.",
+    "Em có thể chuyển sang các dạng bài khó hơn của {weak}.",
+    "Em thử làm lại đề này với thời gian ngắn hơn để rèn tốc độ.",
+    "Em xem thêm phần {weak} ở mức nâng cao.",
+    "Em giữ cách học hiện tại là đủ để theo tốt các buổi sau.",
+    "Em ghi lại cách làm hay của mình để dùng cho các bài sau.",
+    "Điểm duy nhất cần lưu ý là rà lại bài trước khi nộp.",
+    "Em tiếp tục luyện đều để giữ kết quả ổn định.",
+    "Em thử giải một bài khó của {weak} rồi so với đáp án."
+  ] },
+  kha: { open: [ // 8 - 8.9
+    "Em nắm khá chắc kiến thức và làm được phần lớn yêu cầu, còn vài lỗi nhỏ ở {weak}.",
+    "Em hiểu nội dung chính và làm tốt bài kiểm tra, riêng {weak} chưa thật chính xác.",
+    "Em làm bài tốt, nắm được phần lớn {topics}.",
+    "Em vận dụng khá tốt kiến thức đã học, chỉ thiếu sự cẩn thận ở {weak}.",
+    "Em làm đúng phần lớn yêu cầu, còn vài lỗi ở {weak}.",
+    "Em hiểu bài và trình bày ổn, phần {weak} chưa thật chắc.",
+    "Em nắm được các ý chính và làm bài đạt yêu cầu.",
+    "Bài làm của em khá tốt, ít lỗi.",
+    "Em áp dụng đúng nhiều phần kiến thức, còn đôi chỗ nhầm ở {weak}.",
+    "Em làm chắc ở các phần cơ bản, riêng {weak} còn xử lý chậm.",
+    "Em hiểu bài tốt, làm xong bài trong thời gian quy định.",
+    "Em nắm được phần lớn nội dung, kết quả khá tốt.",
+    "Em làm bài đúng hướng, còn vài sai sót nhỏ ở {weak}.",
+    "Em vận dụng được kiến thức đã học vào bài kiểm tra.",
+    "Em làm được phần lớn bài, kết quả ở mức khá.",
+    "Em nắm bài ổn, một vài câu còn mất điểm ở chi tiết.",
+    "Bài của em đúng hướng, chỉ sai vài chỗ nhỏ ở {weak}.",
+    "Em hiểu nội dung kiểm tra và làm được các câu chính."
+  ], mid: [
+    "Cụ thể, phần {strong} em làm tốt, các bước cơ bản đều đúng và đủ ý.",
+    "Em nắm chắc {strong}; riêng {weak} em còn nhầm ở bước xử lý chi tiết.",
+    "Em hiểu và dùng được {strong}, nhưng khi đề đổi cách hỏi ở {weak} thì em còn hơi lúng túng.",
+    "Bài làm đi đúng hướng, phần {strong} rõ ràng, chỉ mất điểm ở vài ý nhỏ của {weak}.",
+    "Em áp dụng {strong} khá thành thạo; phần {weak} em làm được nhưng chưa thật nhanh.",
+    "Em nhớ tốt lý thuyết của {strong}, còn khi vận dụng {weak} thì cần thêm thời gian suy nghĩ.",
+    "Các câu về {strong} em làm gọn; ở {weak} em sai vài chi tiết do chưa đọc kỹ yêu cầu.",
+    "Em có nền tốt ở {strong}, phần {weak} chỉ cần luyện thêm vài lần nữa là quen tay.",
+    "Em hoàn thành đúng phần lớn yêu cầu, đặc biệt là {strong}; {weak} còn sót một bước nhỏ.",
+    "Bài của em sạch và dễ theo dõi, kiến thức {strong} chắc, {weak} cần chỉnh lại đôi chỗ.",
+    "Em làm đúng các câu quen thuộc, câu đổi cách hỏi thì mất thời gian hơn.",
+    "Em nhớ cách làm nhưng chưa quen với các trường hợp của {weak}.",
+    "Phần {strong} em làm chắc, {weak} còn thiếu một bước.",
+    "Em đọc đề chưa kỹ nên mất điểm ở một hai câu dễ.",
+    "Em dùng đúng kiến thức nhưng trình bày còn thiếu ý.",
+    "Em xử lý được các câu cơ bản của {weak}, câu khó hơn thì còn lúng túng.",
+    "Bài làm ổn định, không có lỗi lớn, chỉ vài lỗi vụn.",
+    "Em nắm chắc {strong}, phần còn lại cần thêm thời gian luyện."
+  ], end: [
+    "Em dành khoảng 15–20 phút mỗi tối luyện lại {weak}.",
+    "Em làm lại các bài mẫu phần {weak} rồi tự đối chiếu kết quả.",
+    "Đọc kỹ đề và rà lại bài trước khi nộp là em không mất điểm vặt.",
+    "Gia đình nhắc em ôn thêm phần {weak} ở nhà.",
+    "Em ghi lại các lỗi đã mắc ở {weak} để lần sau tránh lặp lại.",
+    "Em hỏi ngay khi gặp chỗ chưa rõ ở {weak}, đừng để dồn.",
+    "Chỉ cần chắc thêm {weak} là em lên được nhóm điểm cao.",
+    "Em luyện thêm dạng bài vận dụng của {weak} để quen nhiều cách hỏi.",
+    "Em làm thêm vài bài về {weak} là đủ để chắc phần này.",
+    "Em rà lại bài trước khi nộp để không mất điểm vặt.",
+    "Em xem lại các câu sai trong bài kiểm tra này.",
+    "Em luyện thêm dạng câu hỏi khác của {weak}.",
+    "Em học đều thì lần sau kết quả sẽ khá hơn.",
+    "Gia đình cho em ôn thêm {weak} ở nhà.",
+    "Em ghi lại các lỗi hay lặp để tránh mắc lại.",
+    "Em hỏi lại thầy cô những câu chưa hiểu trong bài."
+  ] },
+  tb: { open: [ // 6 - 7.9
+    "Em hiểu các kiến thức cơ bản và làm được phần lớn yêu cầu, còn nhầm ở {weak}.",
+    "Em nắm được kiến thức cơ bản nhưng còn sai sót ở {weak}.",
+    "Em làm được các yêu cầu cơ bản và hiểu cách dùng {topics}.",
+    "Em nắm nội dung cơ bản của bài, còn lúng túng ở {weak}.",
+    "Em làm được các phần cơ bản nhưng còn sai ở {weak}.",
+    "Em hiểu bài ở mức cơ bản, kết quả trung bình khá.",
+    "Em làm đúng các phần quen thuộc, còn vướng ở {weak}.",
+    "Em nắm được ý chính nhưng chưa vận dụng tốt {weak}.",
+    "Bài làm đạt mức cơ bản, em còn nhầm một số bước ở {weak}.",
+    "Em hiểu được phần lớn nội dung, song còn sai ở {weak}.",
+    "Kết quả của em ở mức trung bình khá, phần {weak} chưa chắc.",
+    "Em làm được các câu cơ bản, còn lúng túng khi gặp {weak}.",
+    "Em nắm bài chưa thật chắc, nhất là ở {weak}.",
+    "Em hiểu cơ bản và có cố gắng làm bài, tốc độ còn chậm.",
+    "Em làm được các câu cơ bản, kết quả ở mức trung bình.",
+    "Em nắm bài chưa đều nên mất điểm ở khá nhiều câu.",
+    "Bài của em đạt yêu cầu tối thiểu, còn nhiều chỗ cần ôn lại.",
+    "Em hiểu sơ nội dung kiểm tra nhưng chưa vận dụng được nhiều."
+  ], mid: [
+    "Em làm được các câu quen thuộc ở {strong}, nhưng phần {weak} còn sai khá nhiều bước.",
+    "Phần {strong} em nhớ được ý chính; đến {weak} thì em chưa biết bắt đầu từ đâu.",
+    "Em nắm lý thuyết {strong} ở mức cơ bản, khi vận dụng sang {weak} thì còn nhầm lẫn.",
+    "Bài làm hoàn thành các yêu cầu dễ; những câu liên quan {weak} em bỏ dở hoặc làm chưa đúng.",
+    "Em có cố gắng, phần {strong} làm được, còn {weak} em cần làm lại theo từng bước mẫu.",
+    "Em còn nhầm giữa các trường hợp trong {weak} nên kết quả chưa đúng dù cách làm đã gần đúng.",
+    "Em nhớ bài chưa đều: nội dung vừa học thì làm được, còn {weak} học lâu hơn thì em đã quên.",
+    "Em làm đúng phần {strong} nhưng tốc độ còn chậm nên chưa kịp hoàn thành hết các câu.",
+    "Phần {weak} em mới dừng ở mức làm theo hướng dẫn, chưa tự làm độc lập được.",
+    "Em hiểu yêu cầu của đề nhưng khi triển khai {weak} thì còn thiếu bước và sai thứ tự.",
+    "Em làm đúng các câu có dạng giống bài đã chữa, câu khác thì sai.",
+    "Em nhớ lý thuyết nhưng chưa biết áp dụng vào câu hỏi cụ thể.",
+    "Em bỏ trống một vài câu về {weak}.",
+    "Em sai ở bước trung gian nên kết quả cuối không đúng.",
+    "Em nhầm giữa {strong} và {weak} trong một số câu.",
+    "Em làm chậm nên các câu cuối chưa kịp làm kỹ.",
+    "Em mới làm được phần đầu của các câu về {weak}.",
+    "Có câu em làm đúng hướng nhưng thiếu ý nên chưa được trọn điểm."
+  ], end: [
+    "Em xem lại nội dung phần {weak} và làm lại 2–3 bài mẫu cho quen tay.",
+    "Gia đình nhắc em ôn bài mỗi ngày khoảng 20 phút, ưu tiên phần {weak}.",
+    "Em ghi các bước của {weak} ra giấy theo đúng thứ tự rồi luyện làm theo.",
+    "Em hỏi lại thầy cô ngay tại lớp những chỗ chưa hiểu ở {weak}.",
+    "Em bắt đầu từ bài dễ của {weak} rồi nâng dần độ khó.",
+    "Em cần luyện tập đều hơn; chỉ học trên lớp thì chưa đủ để nhớ bài.",
+    "Em làm lại bài kiểm tra này ở nhà một lần để hiểu rõ chỗ sai.",
+    "Em chăm ôn phần {weak} thì buổi sau kết quả sẽ khá lên.",
+    "Em học lại phần {weak} theo từng bước rồi làm bài mẫu.",
+    "Em làm lại các câu sai trong bài kiểm tra này.",
+    "Em ôn 20 phút mỗi ngày thay vì học dồn.",
+    "Gia đình kiểm tra bài tập về nhà của em.",
+    "Em hỏi lại ngay tại lớp khi chưa hiểu.",
+    "Em cần làm đủ bài tập được giao.",
+    "Em ôn kỹ lý thuyết trước khi làm bài tập.",
+    "Em luyện thêm để nhớ cách làm lâu hơn."
+  ] },
+  yeu: { open: [ // < 6
+    "Em mới nắm được một phần kiến thức, còn nhiều sai sót ở {weak}.",
+    "Bài làm cho thấy em chưa nắm chắc {topics}.",
+    "Em còn khó khăn khi vận dụng {weak}.",
+    "Kết quả cho thấy em cần cố gắng hơn, nhất là ở {weak}.",
+    "Em nắm bài còn yếu, sai nhiều ở {weak}.",
+    "Em chưa làm được phần lớn yêu cầu của đề.",
+    "Bài kiểm tra chưa đạt yêu cầu, em còn lúng túng ở {weak}.",
+    "Kiến thức nền của em chưa chắc, nhất là {weak}.",
+    "Em mới làm được các phần dễ, còn sai ở {weak}.",
+    "Kết quả chưa tốt do em chưa nắm chắc {weak}.",
+    "Em còn nhiều chỗ nhầm lẫn trong bài.",
+    "Em còn yếu ở {weak} và cần cố gắng nhiều hơn.",
+    "Kết quả bài kiểm tra chưa đạt, em cần học lại từ phần cơ bản.",
+    "Em làm được rất ít câu, phần lớn nội dung em chưa nắm.",
+    "Bài của em còn sai nhiều, chủ yếu ở các bước cơ bản.",
+    "Em chưa theo kịp nội dung kiểm tra và cần ôn lại từ đầu."
+  ], mid: [
+    "Em mới làm được vài câu cơ bản; phần {weak} thì hầu như chưa làm được.",
+    "Kiến thức {strong} em còn nhớ mang máng, đến {weak} thì em chưa nắm được cách làm.",
+    "Nhiều câu em bỏ trống hoặc làm sai ngay từ bước đầu, nhất là ở {weak}.",
+    "Em chưa phân biệt được các trường hợp trong {weak} nên kết quả sai theo dây chuyền.",
+    "Em cần học lại từ phần {strong} vì đây là nền để hiểu được {weak}.",
+    "Em làm bài theo kiểu nhớ máy móc, chưa hiểu bản chất của {weak} nên đề đổi một chút là lúng túng.",
+    "Em nhớ được tên các nội dung đã học nhưng chưa biết dùng {weak} vào bài cụ thể.",
+    "Em còn lúng túng ngay từ bước xác định yêu cầu của đề, đặc biệt ở các câu về {weak}.",
+    "Em làm sai từ bước đầu nên các bước sau không đúng theo.",
+    "Em chưa nhớ cách làm nên phần lớn câu hỏi bỏ trống.",
+    "Em nhầm lẫn giữa các phần đã học nên chọn sai cách làm.",
+    "Em chỉ làm được câu có sẵn mẫu, các câu khác thì chưa.",
+    "Kiến thức nền của em còn hổng nên bài kiểm tra khá nặng với em.",
+    "Em chưa đọc hiểu được yêu cầu của nhiều câu trong đề.",
+    "Em cần học lại {strong} trước, đây là phần nền của {weak}.",
+    "Nhiều chỗ em chỉ ghi kết quả mà thiếu các bước làm."
+  ], end: [
+    "Em cần học lại từ phần cơ bản: xem lại bài, chép lại các bước rồi làm theo mẫu.",
+    "Gia đình kèm em ôn bài mỗi ngày và nhắc em làm đủ bài tập về nhà.",
+    "Em nên ở lại sau buổi học để được hướng dẫn lại phần {weak}.",
+    "Trước mắt em làm chắc {strong}, vững rồi mới chuyển sang {weak}.",
+    "Em hỏi thầy cô ngay khi chưa hiểu, không nên để dồn.",
+    "Em làm lại bài kiểm tra này ở nhà, chỗ nào không làm được thì đánh dấu để hỏi.",
+    "Em luyện tập đều mỗi ngày thì kết quả sẽ cải thiện dần.",
+    "Gia đình nhắc em học đều để theo kịp chương trình của lớp.",
+    "Em học lại lý thuyết cơ bản trước khi làm bài tập.",
+    "Em làm lại từng bài mẫu đã chữa trên lớp.",
+    "Gia đình kèm em học mỗi ngày vào một khung giờ cố định.",
+    "Em cần làm đủ bài tập về nhà.",
+    "Em hỏi ngay tại lớp thay vì để dồn đến khi kiểm tra.",
+    "Em bắt đầu lại từ những phần dễ nhất.",
+    "Em cần thêm thời gian ôn với thầy cô ngoài giờ.",
+    "Em học đều mỗi ngày thì sẽ theo lại được lớp."
+  ] }
 };
 
 function scoreToBand(x) { return x >= 9 ? "gioi" : x >= 8 ? "kha" : x >= 6 ? "tb" : "yeu"; }
 
-/* Túi bốc không lặp cho câu kiểm tra: mỗi bậc phát hết mẫu rồi mới lặp lại. */
-let _examBag, _examIdx;
-function resetExamBags() { _examBag = {}; _examIdx = {}; }
-function nextExamTmpl(band) {
-  const arr = EXAM[band];
-  if (!_examBag[band] || _examIdx[band] >= _examBag[band].length) {
-    _examBag[band] = shuffle(arr.map((_, i) => i));
-    _examIdx[band] = 0;
-  }
-  return arr[_examBag[band][_examIdx[band]++]];
+/* Câu kiểm tra cũng bốc theo từng vị trí câu để cả lớp không trùng nhau. */
+function resetExamBags() { /* dùng chung túi với resetBags() */ }
+function nextExamCombo(band) {
+  const E = EXAM[band];
+  const k = "E:" + band + ":";
+  return { o: nextSlot(k + "o", E.open.length), m: nextSlot(k + "m", E.mid.length), e: nextSlot(k + "e", E.end.length) };
 }
 
-function pickWeak(topicsList) {
-  if (!topicsList.length) return "một số nội dung đã học";
-  if (topicsList.length === 1) return topicsList[0];
-  const shuffled = shuffle(topicsList.slice());
-  const n = rnd() < 0.5 ? 1 : 2;
-  return fmtTopics(shuffled.slice(0, n));
+/* Chọn 2 nhóm nội dung KHÁC nhau: phần em làm tốt ({strong}) và phần cần cải thiện ({weak}). */
+function pickTopicPair(topicsList) {
+  if (!topicsList.length) return { strong: "các nội dung đã học", weak: "một số nội dung đã học" };
+  if (topicsList.length === 1) return { strong: topicsList[0], weak: topicsList[0] };
+  const sh = shuffle(topicsList.slice());
+  const nS = (sh.length >= 4 && rnd() < 0.5) ? 2 : 1;
+  const strong = sh.slice(0, nS);
+  const rest = sh.slice(nS);
+  const nW = (rest.length >= 3 && rnd() < 0.5) ? 2 : 1;
+  const weak = rest.slice(0, nW);
+  // Câu định hướng dùng một nội dung khác (nếu còn) để đỡ lặp lại tên phần đã nhắc ở trên.
+  const focus = rest.length > nW ? [rest[nW]] : weak;
+  return { strong: fmtTopics(strong), weak: fmtTopics(weak), focus: fmtTopics(focus) };
 }
 
-function fillExam(t, topicsStr, weak) {
-  return t.replace(/{topics}/g, topicsStr || "các nội dung đã học").replace(/{weak}/g, weak);
+function fillExam(t, topicsStr, weak, strong) {
+  return t.replace(/{topics}/g, topicsStr || "các nội dung đã học")
+          .replace(/{weak}/g, weak)
+          .replace(/{strong}/g, strong);
+}
+
+/* Nhận xét đầy đủ cho 1 học sinh: điểm + đánh giá chung + bám nội dung học + định hướng. */
+function buildExamBody(band, topicsArr, topicsStr, scoreTxt) {
+  const E = EXAM[band];
+  const c = nextExamCombo(band);
+  const p = pickTopicPair(topicsArr);
+  const tp = studentTopics(topicsArr, topicsStr);
+  const sentences = [
+    fillExam(E.open[c.o], tp, p.weak, p.strong),
+    fillExam(E.mid[c.m], tp, p.weak, p.strong),
+    fillExam(E.end[c.e], tp, p.focus, p.strong)
+  ];
+  return "Em đạt " + scoreTxt + " điểm trong bài kiểm tra. " + sentences.join(" ");
 }
 
 function buildExam(topicsArr, topicsStr, para, BL) {
@@ -1049,11 +1541,11 @@ function buildExam(topicsArr, topicsStr, para, BL) {
       : '<b>' + escapeHtml(r.name) + '</b>';
     let body;
     if (hasScore) {
-      const tmpl = nextExamTmpl(scoreToBand(st.score));
-      body = "Em đạt " + scoreTxt + " điểm trong bài kiểm tra. " + fillExam(tmpl, topicsStr, pickWeak(topicsArr));
+      body = buildExamBody(scoreToBand(st.score), topicsArr, topicsStr, scoreTxt);
     } else {
       body = "(chưa nhập điểm)";
     }
+    st.examText = hasScore ? body : "";
     blocks.push(para(nameLine + "<div>" + escapeHtml(body) + "</div>"));
   });
   return blocks.join(para(BL));
@@ -1081,10 +1573,17 @@ function generate() {
     return;
   }
 
-  const introRaw = document.getElementById("title").value + " xin nhận xét về buổi học vừa qua ạ:";
-  const contentParts = buildContent(topicsStr);
-  const general = buildGeneral();
-  const students = roster.map(r => ({ name: r.name, bodyParts: buildStudentBody(r, topicsStr) }));
+  const introRaw = document.getElementById("title").value + (projectMode
+    ? " xin nhận xét về buổi ôn tập và làm sản phẩm cá nhân vừa qua ạ:"
+    : " xin nhận xét về buổi học vừa qua ạ:");
+  const contentParts = buildContent(topicsStr, projectMode ? PROJECT_CONTENT : CONTENT);
+  const general = buildGeneral(projectMode ? PROJECT_GENERAL : GENERAL);
+  const levelBank = projectMode ? PROJECT_LEVELS : LEVELS;
+  const bankTag = projectMode ? "P" : "L";
+  const students = roster.map(r => ({
+    name: r.name,
+    bodyParts: buildStudentBody(r, studentTopics(topics, topicsStr), levelBank, bankTag)
+  }));
 
   const blocks = [];
   blocks.push(para(escapeHtml(introRaw)));
@@ -1092,7 +1591,8 @@ function generate() {
   const contentHtml = "<ul style='margin: 4px 0 0 0; padding-left: 20px;'>" +
                       contentParts.map(p => "<li style='margin-bottom: 4px;'>" + escapeHtml(p) + "</li>").join("") +
                       "</ul>";
-  blocks.push(para('<b>Nội dung:</b><b style="color:#f27806">' + contentHtml + '</b>'));
+  const contentLabel = projectMode ? "Nội dung buổi học:" : "Nội dung:";
+  blocks.push(para('<b>' + contentLabel + '</b><b style="color:#f27806">' + contentHtml + '</b>'));
 
   if (general) blocks.push(para('<b style="color:#db342e">Nhận xét chung:</b> ' + escapeHtml(general)));
   blocks.push(para('<b style="color:#15a85f">Nhận xét cá nhân:</b>'));
